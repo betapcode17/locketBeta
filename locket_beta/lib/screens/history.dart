@@ -15,7 +15,6 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
-    print(images.length);
     // TODO: implement initState
     super.initState();
   }
@@ -48,19 +47,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 )),
               )
             : ListView.builder(
-                padding: const EdgeInsets.only(top: 150, left: 15, right: 15),
+                padding: const EdgeInsets.only(top: 90, left: 15, right: 15),
                 itemCount: images.length,
                 itemBuilder: (context, i) {
                   return Container(
                     alignment: Alignment.bottomCenter,
                     margin: const EdgeInsets.symmetric(vertical: 10),
-                    height: 200,
+                    // height: 200,
                     width: Sizes.width(context),
+                    height: Sizes.width(context),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         image: DecorationImage(
                             image: FileImage(File(images[i])),
-                            fit: BoxFit.cover)),
+                            fit: BoxFit.cover
+                        )  
+                    ),
                     child: Container(
                       width: 40,
                       height: 40,
