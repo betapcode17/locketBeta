@@ -18,13 +18,11 @@ class ImagePreview extends StatefulWidget {
 class _ImagePreviewState extends State<ImagePreview> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 600,
+    return FractionallySizedBox(
       child: Scaffold(
         backgroundColor: const Color(0xff1d1b20),
         body: Container(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-          height: 500,
           width: MediaQuery.of(context).size.width,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -40,6 +38,7 @@ class _ImagePreviewState extends State<ImagePreview> {
                   ),
                 ),
               ),
+              const SizedBox(height: 10,),
               Container(
                 height: MediaQuery.of(context).size.height * 0.1,
                 width: MediaQuery.of(context).size.width,
