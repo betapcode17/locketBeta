@@ -6,6 +6,7 @@ import 'package:locket_beta/messenger/list_messenger/messenger.dart';
 import 'package:locket_beta/screens/history.dart';
 import 'package:locket_beta/screens/preview.dart';
 import 'package:locket_beta/settings/sizes.dart';
+import 'package:locket_beta/profile/profile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -90,13 +91,17 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 40,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100),
-              color: const Color(0xff47444c),
+              color: const Color.fromARGB(255, 124, 122, 128),
             ),
             child: IconButton(
-              onPressed: () {},
-              icon: Icon(
+              onPressed: () {
+                  Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
+              },
+              icon: const Icon(
                 Icons.person,
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white,
               ),
             ),
           ),
@@ -107,12 +112,12 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 40,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(100),
-            color: const Color(0xff47444c),
+            color: const Color.fromARGB(255, 124, 122, 128),
           ),
-          child: Text(
+          child: const Text(
             "Add Friends",
             style: TextStyle(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white,
               fontSize: 17,
             ),
           ),
@@ -125,15 +130,15 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 57,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100),
-                color: const Color(0xff47444c),
+                color: const Color.fromARGB(255, 124, 122, 128),
               ),
               child: IconButton(
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => Messenger()));
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.chat_bubble_outline,
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white,
                 ),
               ),
             ),
