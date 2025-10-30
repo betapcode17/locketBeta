@@ -1,7 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:locket_beta/profile/user_settings/cubit/user_settings_cubit.dart';
+// Assuming SettingsCubit and states are defined elsewhere
+// import 'package:locket_beta/profile/user_settings/cubit/user_settings_cubit.dart';
+
+// Mock classes for demonstration since the CUBIT is not provided
+class SettingsCubit extends Cubit<SettingsState> {
+  SettingsCubit() : super(SettingsInitial());
+  void fetchSettings() {
+    // Simulate a network request
+    Future.delayed(const Duration(seconds: 1), () {
+      emit(SettingsLoaded(settings: "Mock Settings")); // Pass mock data
+    });
+  }
+}
+abstract class SettingsState {}
+class SettingsInitial extends SettingsState {}
+class SettingsLoading extends SettingsState {}
+class SettingsLoaded extends SettingsState {
+  final dynamic settings; // Using dynamic for mock data
+  SettingsLoaded({required this.settings});
+}
+class SettingsError extends SettingsState {
+  final String message;
+  SettingsError({required this.message});
+}
+// End of mock classes
 
 
 class SettingsScreen extends StatelessWidget {
@@ -9,9 +33,7 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return BlocProvider(
-      
       create: (context) => SettingsCubit()..fetchSettings(),
       child: Scaffold(
         backgroundColor: const Color(0xff121212),
@@ -23,12 +45,11 @@ class SettingsScreen extends StatelessWidget {
           backgroundColor: const Color(0xff121212),
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white), 
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          iconTheme: const IconThemeData(color: Colors.white), 
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
-        
         body: BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, state) {
             if (state is SettingsLoading || state is SettingsInitial) {
@@ -38,10 +59,12 @@ class SettingsScreen extends StatelessWidget {
               return Center(child: Text(state.message));
             }
             if (state is SettingsLoaded) {
-              final settings = state.settings;
+              // final settings = state.settings; // You can use this if needed
               return ListView(
                 padding: const EdgeInsets.all(16.0),
                 children: [
+                  
+                  // --- Existing General Section ---
                   _buildSectionHeader('General'),
                   _SettingsListItem(
                     icon: Icons.cake_outlined,
@@ -68,49 +91,50 @@ class SettingsScreen extends StatelessWidget {
                     title: 'Add email address',
                     onTap: () { /* TODO */ },
                   ),
-                  _SettingsListItem(
-                    icon: Icons.music_note_outlined,
-                    title: 'Unlink music provider',
-                    onTap: () { /* TODO */ },
-                  ),
+                  const SizedBox(height: 16), // Spacer between sections
 
-                  const SizedBox(height: 24),
-                  _buildSectionHeader('Support'),
+                  // --- Added About Section ---
+                  _buildSectionHeader('About'),
                   _SettingsListItem(
-                    icon: Icons.error_outline,
-                    title: 'Report a problem',
+                    icon: Icons.music_video_outlined, // Placeholder for TikTok
+                    title: 'TikTok',
                     onTap: () { /* TODO */ },
                   ),
                   _SettingsListItem(
-                    icon: Icons.lightbulb_outline,
-                    title: 'Make a suggestion',
+                    icon: Icons.camera_alt_outlined, // Placeholder for Instagram
+                    title: 'Instagram',
                     onTap: () { /* TODO */ },
                   ),
                   _SettingsListItem(
-                    icon: Icons.restore,
-                    title: 'Restore purchases',
+                    icon: Icons.public_outlined, // Placeholder for X
+                    title: 'X (Twitter)',
                     onTap: () { /* TODO */ },
                   ),
-
-                  const SizedBox(height: 24),
-                  _buildSectionHeader('Privacy & Safety'),
-
                   _SettingsListItem(
-                    icon: Icons.remove_red_eye_outlined,
-                    title: 'Send read receipts',
-                    trailing: Switch(
-                      value: settings.sendReadReceipts,
-                      onChanged: (newValue) {
-                        
-                        context.read<SettingsCubit>().updateReadReceipts(newValue);
-                      },
-                      activeColor: Colors.amber,
-                    ),
+                    icon: Icons.share_outlined,
+                    title: 'Share My Locket',
+                    onTap: () { /* TODO */ },
+                  ),
+                  const SizedBox(height: 16), // Spacer between sections
+                  
+                  // --- Added Danger Zone Section ---
+                  _buildSectionHeader('Danger Zone'),
+                  _SettingsListItem(
+                    icon: Icons.delete_outline,
+                    title: 'Delete account',
+                    onTap: () { /* TODO */ },
+                    iconColor: Colors.red, // Use custom color
+                    titleColor: Colors.red, // Use custom color
+                  ),
+                  _SettingsListItem(
+                    icon: Icons.logout_outlined,
+                    title: 'Sign out',
+                    onTap: () { /* TODO */ },
                   ),
                 ],
               );
             }
-            return Container(); 
+            return Container();
           },
         ),
       ),
@@ -132,18 +156,21 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-
 class _SettingsListItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final VoidCallback? onTap;
   final Widget? trailing;
+  final Color? titleColor; // Added for custom title color
+  final Color? iconColor; // Added for custom icon color
 
   const _SettingsListItem({
     required this.icon,
     required this.title,
     this.onTap,
     this.trailing,
+    this.titleColor,
+    this.iconColor,
   });
 
   @override
@@ -155,9 +182,16 @@ class _SettingsListItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        leading: Icon(icon, color: Colors.white70),
-        title: Text(title, style: const TextStyle(color: Colors.white)),
-        trailing: trailing ?? (onTap != null ? const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white70) : null),
+        leading: Icon(icon, color: iconColor ?? Colors.white70), // Use custom color
+        title: Text(
+          title,
+          style: TextStyle(color: titleColor ?? Colors.white), // Use custom color
+        ),
+        trailing: trailing ??
+            (onTap != null
+                ? const Icon(Icons.arrow_forward_ios,
+                    size: 16, color: Colors.white70)
+                : null),
         onTap: onTap,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),

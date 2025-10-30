@@ -107,3 +107,6 @@ lib/generated_plugin_registrant.dart
 .env
 .env.local
 .env.*.local
+
+
+/locket_beta/
