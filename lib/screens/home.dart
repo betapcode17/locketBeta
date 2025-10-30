@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:locket_beta/friends/friends_screen.dart';
 import 'package:locket_beta/messenger/list_messenger/messenger.dart';
 import 'package:locket_beta/screens/history.dart';
 import 'package:locket_beta/screens/preview.dart';
@@ -104,19 +105,27 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-        title: Container(
-          alignment: Alignment.center,
-          width: 150,
-          height: 40,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(100),
-            color: const Color.fromARGB(255, 124, 122, 128),
-          ),
-          child: const Text(
-            "Add Friends",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 17,
+        title: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const FriendsScreen()),
+            );
+          },
+          child: Container(
+            alignment: Alignment.center,
+            width: 150,
+            height: 40,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              color: const Color.fromARGB(255, 124, 122, 128),
+            ),
+            child: const Text(
+              "Add Friends",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+              ),
             ),
           ),
         ),
