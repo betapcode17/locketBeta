@@ -365,7 +365,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             );
           } else {
-            // Trang history
             return HistoryScreen();
           }
         },

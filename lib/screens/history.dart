@@ -1,5 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:locket_beta/settings/global.dart'; // Nếu bạn dùng biến/hàm global trong dự án
+import 'history_grid.dart'; // import file chứa HistoryGrid
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -11,64 +12,74 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   final TextEditingController _messageController = TextEditingController();
   bool clicked = false;
+  bool showGrid = false;
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff1d1b20),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 5),
-        child: Column(
-          children: [
-            // Header ảnh với gradient
-            _buildHeader(),
-
-            // Nội dung chat
-            Expanded(
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 15),
-                    _buildSenderInfo(),
-                    const SizedBox(height: 20),
-                    _buildTextFieldWithIcons(),
-                    const SizedBox(height: 20),
-                    _buildBottomButtons(),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+      backgroundColor: showGrid ? Colors.black : const Color(0xff1d1b20),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: showGrid ? _buildGridView() : _buildMainView(),
       ),
     );
   }
 
+  Widget _buildMainView() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 5),
+      child: Column(
+        children: [
+          _buildHeader(),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+              child: Column(
+                children: [
+                  const SizedBox(height: 15),
+                  _buildSenderInfo(),
+                  const SizedBox(height: 20),
+                  _buildTextFieldWithIcons(),
+                  const SizedBox(height: 20),
+                  _buildBottomButtons(),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGridView() => const HistoryGrid();
+
   Widget _buildHeader() {
-    return Container(
-      height: 450, // chiều cao tổng: ảnh + bubble
+    return SizedBox(
+      height: 450,
       width: double.infinity,
       child: Stack(
-        clipBehavior: Clip.none, // cho phép bubble vượt ra khỏi ảnh nếu cần
+        clipBehavior: Clip.none,
         children: [
-          // Ảnh background
           ClipRRect(
             borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(30), bottom: Radius.circular(30)),
+              top: Radius.circular(30),
+              bottom: Radius.circular(30),
+            ),
             child: Image.asset(
               "assets/images/cat_img.jpg",
               fit: BoxFit.cover,
               width: double.infinity,
-              height: double.infinity, // chiều cao ảnh riêng
+              height: double.infinity,
             ),
           ),
-
-          // Gradient overlay
           Container(
-            height: 500,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
@@ -81,10 +92,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
             ),
           ),
-
-          // Message bubble nổi trên ảnh
           Positioned(
-            bottom: 0, // đẩy xuống dưới ảnh, có thể thay đổi
+            bottom: 0,
             left: 20,
             right: 20,
             child: Container(
@@ -166,12 +175,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
               hintText: 'Send message...',
               hintStyle: TextStyle(color: Colors.white54),
               border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
               isDense: true,
             ),
-            onSubmitted: (value) {
-              _messageController.clear();
-            },
+            onSubmitted: (_) => _messageController.clear(),
           ),
         ),
         Positioned(
@@ -185,20 +191,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 icon: const Icon(Icons.local_fire_department,
                     color: Colors.orange, size: 20),
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
               ),
               IconButton(
                 onPressed: () {},
                 icon: const Icon(Icons.favorite, color: Colors.red, size: 20),
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
               ),
               IconButton(
                 onPressed: () {},
                 icon: const Icon(Icons.sentiment_very_satisfied,
                     color: Colors.yellow, size: 20),
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
               ),
             ],
           ),
@@ -212,15 +215,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
-          onPressed: () {},
+          onPressed: () => setState(() => showGrid = !showGrid),
           icon: const Icon(Icons.more_horiz, color: Colors.white, size: 28),
         ),
         GestureDetector(
-          onTap: () {
-            setState(() {
-              clicked = !clicked;
-            });
-          },
+          onTap: () => setState(() => clicked = !clicked),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 100),
             width: clicked ? 50 : 70,
