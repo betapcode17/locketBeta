@@ -14,10 +14,22 @@ class MessengerCubit extends Cubit<MessengerState>{
         UserModel(username: "Nguyen Thi A")
       ];
 
-      emit(MessengerLoadedState(messengers: friends));
+      emit(MessengerLoadedState(messengers: friends, messengerFilter: friends));
     }
     catch(e) {
       emit(MessengerErrorState());
+    }
+  }
+
+    void filter(String query) {
+    final current = state;
+    if (current is MessengerLoadedState) {
+      final q = query.trim().toLowerCase();
+      final filtered = q.isEmpty
+          ? current.messengers
+          : current.messengers.where((m) => m.username.toLowerCase().contains(q)).toList();
+
+      emit(MessengerLoadedState(messengers: current.messengers, messengerFilter: filtered));
     }
   }
 }

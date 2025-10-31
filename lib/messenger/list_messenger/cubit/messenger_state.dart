@@ -12,15 +12,18 @@ class MessengerLoadingState extends MessengerState {
 
 class MessengerLoadedState extends MessengerState {
   List<UserModel> messengers;
+  List<UserModel> messengerFilter;
 
   MessengerLoadedState({
-    required this.messengers
+    required this.messengers,
+    required this.messengerFilter
   });
 
   MessengerLoadedState copyWith({
     List<UserModel>? messengers,
+    List<UserModel>? messengerFilter
   }) {
-    return MessengerLoadedState(messengers: messengers ?? this.messengers);
+    return MessengerLoadedState(messengers: messengers ?? this.messengers, messengerFilter: messengerFilter ?? this.messengerFilter);
   }
 }
 

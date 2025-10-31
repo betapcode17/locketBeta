@@ -11,11 +11,13 @@ class Messenger extends StatefulWidget{
 }
 
 class _Messenger extends State<Messenger> {
-  // List<UserModel> friends = [
-  //   UserModel(username: "Le Van A"),
-  //   UserModel(username: "Le Van B"),
-  //   UserModel(username: "Nguyen Thi A")
-  // ];
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -39,7 +41,7 @@ class _Messenger extends State<Messenger> {
               return const Center(child: CircularProgressIndicator());
             }
             if(state is MessengerLoadedState) {
-              List<UserModel> friends = state.messengers;
+              List<UserModel> friends = state.messengerFilter;
               if(friends.isEmpty) {
                 return const Center(
                   child: Text(
@@ -58,6 +60,10 @@ class _Messenger extends State<Messenger> {
                       children: [
                         // Thanh tìm kiếm
                         TextField(
+                          controller: _searchController,
+                          onChanged: (value) {
+                            context.read<MessengerCubit>().filter(value);
+                          },
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             filled: true,
