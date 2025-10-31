@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:locket_beta/logout/views/logout_ui.dart";
 
 // Assuming SettingsCubit and states are defined elsewhere
 // import 'package:locket_beta/profile/user_settings/cubit/user_settings_cubit.dart';
@@ -14,19 +15,23 @@ class SettingsCubit extends Cubit<SettingsState> {
     });
   }
 }
+
 abstract class SettingsState {}
+
 class SettingsInitial extends SettingsState {}
+
 class SettingsLoading extends SettingsState {}
+
 class SettingsLoaded extends SettingsState {
   final dynamic settings; // Using dynamic for mock data
   SettingsLoaded({required this.settings});
 }
+
 class SettingsError extends SettingsState {
   final String message;
   SettingsError({required this.message});
 }
 // End of mock classes
-
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -63,33 +68,32 @@ class SettingsScreen extends StatelessWidget {
               return ListView(
                 padding: const EdgeInsets.all(16.0),
                 children: [
-                  
                   // --- Existing General Section ---
                   _buildSectionHeader('General'),
                   _SettingsListItem(
                     icon: Icons.cake_outlined,
                     title: 'Edit birthday',
-                    onTap: () { /* TODO */ },
+                    onTap: () {/* TODO */},
                   ),
                   _SettingsListItem(
                     icon: Icons.text_fields,
                     title: 'Edit name',
-                    onTap: () { /* TODO */ },
+                    onTap: () {/* TODO */},
                   ),
                   _SettingsListItem(
                     icon: Icons.portrait_outlined,
                     title: 'Edit profile photo',
-                    onTap: () { /* TODO */ },
+                    onTap: () {/* TODO */},
                   ),
                   _SettingsListItem(
                     icon: Icons.phone_outlined,
                     title: 'Phone number',
-                    onTap: () { /* TODO */ },
+                    onTap: () {/* TODO */},
                   ),
                   _SettingsListItem(
                     icon: Icons.mail_outline,
                     title: 'Add email address',
-                    onTap: () { /* TODO */ },
+                    onTap: () {/* TODO */},
                   ),
                   const SizedBox(height: 16), // Spacer between sections
 
@@ -98,38 +102,41 @@ class SettingsScreen extends StatelessWidget {
                   _SettingsListItem(
                     icon: Icons.music_video_outlined, // Placeholder for TikTok
                     title: 'TikTok',
-                    onTap: () { /* TODO */ },
+                    onTap: () {/* TODO */},
                   ),
                   _SettingsListItem(
-                    icon: Icons.camera_alt_outlined, // Placeholder for Instagram
+                    icon:
+                        Icons.camera_alt_outlined, // Placeholder for Instagram
                     title: 'Instagram',
-                    onTap: () { /* TODO */ },
+                    onTap: () {/* TODO */},
                   ),
                   _SettingsListItem(
                     icon: Icons.public_outlined, // Placeholder for X
                     title: 'X (Twitter)',
-                    onTap: () { /* TODO */ },
+                    onTap: () {/* TODO */},
                   ),
                   _SettingsListItem(
                     icon: Icons.share_outlined,
                     title: 'Share My Locket',
-                    onTap: () { /* TODO */ },
+                    onTap: () {/* TODO */},
                   ),
                   const SizedBox(height: 16), // Spacer between sections
-                  
+
                   // --- Added Danger Zone Section ---
                   _buildSectionHeader('Danger Zone'),
                   _SettingsListItem(
                     icon: Icons.delete_outline,
                     title: 'Delete account',
-                    onTap: () { /* TODO */ },
+                    onTap: () {/* TODO */},
                     iconColor: Colors.red, // Use custom color
                     titleColor: Colors.red, // Use custom color
                   ),
                   _SettingsListItem(
                     icon: Icons.logout_outlined,
                     title: 'Sign out',
-                    onTap: () { /* TODO */ },
+                    onTap: () {
+                      showLogoutDialog(context);
+                    },
                   ),
                 ],
               );
@@ -182,10 +189,12 @@ class _SettingsListItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        leading: Icon(icon, color: iconColor ?? Colors.white70), // Use custom color
+        leading:
+            Icon(icon, color: iconColor ?? Colors.white70), // Use custom color
         title: Text(
           title,
-          style: TextStyle(color: titleColor ?? Colors.white), // Use custom color
+          style:
+              TextStyle(color: titleColor ?? Colors.white), // Use custom color
         ),
         trailing: trailing ??
             (onTap != null
