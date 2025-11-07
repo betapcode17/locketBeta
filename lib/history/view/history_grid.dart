@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:locket_beta/screens/home.dart';
+import 'package:locket_beta/home/view/home.dart';
 
 class HistoryGrid extends StatelessWidget {
   const HistoryGrid({super.key});
