@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:locket_beta/friends/friends_screen.dart';
-import 'package:locket_beta/messenger/list_messenger/messenger.dart';
+import 'package:locket_beta/messenger/chat/chat.dart';
 import 'package:locket_beta/screens/history.dart';
 import 'package:locket_beta/screens/preview.dart';
 import 'package:locket_beta/settings/sizes.dart';
@@ -141,8 +141,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: IconButton(
                 onPressed: () {
+                  // TODO: current ID cần phải lấy từ khi đăng nhập và truyền vào
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Messenger()));
+                      MaterialPageRoute(builder: (context) => ChatPage(currentUserId: "690effbcb90f29f230c54996",)));
                 },
                 icon: const Icon(
                   Icons.chat_bubble_outline,
@@ -162,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Trang camera
             return GestureDetector(
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 50, horizontal: 5),
+                padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 5),
                 width: Sizes.width(context),
                 height: Sizes.height(context),
                 child: Column(
@@ -175,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       onScaleUpdate: _onScaleUpdate,
                       onScaleStart: _onScaleStart,
                       child: Container(
-                        margin: EdgeInsets.symmetric(vertical: 20),
+                        margin: const EdgeInsets.symmetric(vertical: 20),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(100),
                         ),
@@ -230,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -260,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(100),
                               border: Border.all(
-                                color: Color(0xffFCB600),
+                                color: const Color(0xffFCB600),
                                 width: 5,
                               ),
                             ),
@@ -293,13 +294,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     clicked = false;
                                   });
                                 },
-                                duration: Duration(milliseconds: 100),
+                                duration: const Duration(milliseconds: 100),
                                 width: clicked ? 50 : 80,
                                 height: clicked ? 50 : 80,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(100),
                                   color: clicked
-                                      ? Color(0xff47444c)
+                                      ? const Color(0xff47444c)
                                       : Colors.white,
                                 ),
                               ),

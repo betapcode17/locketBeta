@@ -2,205 +2,174 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locket_beta/messenger/chat/cubit/chat_cubit.dart';
 import 'package:locket_beta/messenger/chat/cubit/chat_state.dart';
-import 'package:locket_beta/model/message_model.dart';
-import 'package:locket_beta/model/user_model.dart';
+import 'package:locket_beta/messenger/message/message.dart';
+import 'package:locket_beta/model/chat_model.dart';
 
 class ChatPage extends StatefulWidget {
-  UserModel currentFriend;
-  ChatPage({Key? key, required this.currentFriend}) : super(key: key);
-
+  String currentUserId;
+  ChatPage({
+    super.key,
+    required this.currentUserId,
+  });
+  
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<ChatPage> createState() => _ChatPage();
 }
 
-class _ChatPageState extends State<ChatPage> {
-
-  late UserModel currentFriend;
-
-  final TextEditingController _controller = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
+class _ChatPage extends State<ChatPage> {
+  final TextEditingController _searchController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    currentFriend = widget.currentFriend;
-  }
-
-  void _send(BuildContext context) {
-    final text = _controller.text.trim();
-    if (text.isEmpty) return;
-      context.read<ChatCubit>().addMessage(text, true, DateTime.now());
-      _controller.clear();
-    // scroll to bottom after a short delay
-    Future.delayed(const Duration(milliseconds: 100), () {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent + 80,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-      );
-    });
-  }
-
-  Widget _buildMessage(MessageModel m) {
-    final bubbleColor = m.isMe ? const Color(0xFF0B84FF) : const Color(0xFF2A2A2E);
-    final textColor = m.isMe ? Colors.white : Colors.white70;
-    final align = m.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-    final borderRadius = BorderRadius.only(
-      topLeft: const Radius.circular(16),
-      topRight: const Radius.circular(16),
-      bottomLeft: Radius.circular(m.isMe ? 16 : 4),
-      bottomRight: Radius.circular(m.isMe ? 4 : 16),
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Column(
-        crossAxisAlignment: align,
-        children: [
-          Row(
-            mainAxisAlignment: m.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-            children: [
-              if (!m.isMe)
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: const Color(0xFF3A3A3E),
-                  child: const Icon(Icons.person, size: 18, color: Colors.white70),
-                ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: bubbleColor,
-                    borderRadius: borderRadius,
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  child: Text(m.text, style: TextStyle(color: textColor)),
-                ),
-              ),
-              const SizedBox(width: 8),
-              if (m.isMe)
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: const Color(0xFF0A74D1),
-                  child: const Icon(Icons.person, size: 18, color: Colors.white),
-                ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Padding(
-            padding: EdgeInsets.only(left: m.isMe ? 0 : 48, right: m.isMe ? 48 : 0),
-            child: Text(
-              _formatTime(m.time),
-              style: const TextStyle(fontSize: 11, color: Colors.white54),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  static String _formatTime(DateTime t) {
-    final h = t.hour.toString().padLeft(2, '0');
-    final m = t.minute.toString().padLeft(2, '0');
-    return '$h:$m';
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
-    Widget build(BuildContext context) {
-    return BlocProvider<ChatCubit>(
-      create: (context) => ChatCubit(currentFriend: currentFriend)..loadData(),
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => ChatCubit(currentUserId: widget.currentUserId)..loadData(),
       child: Scaffold(
-        backgroundColor: const Color(0xFF121212),
+        backgroundColor: const Color(0xff1d1b20),
         appBar: AppBar(
-          backgroundColor: const Color(0xFF1F1B24),
+          title: const Text(
+            "Messenger",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: const Color(0xff1d1b20),
           iconTheme: const IconThemeData(color: Colors.white),
-          leadingWidth: 70,
-          leading: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.of(context).maybePop(),
-              ),
-            ],
-          ),
-          title: Row(
-            children: [
-              CircleAvatar(
-                radius: 26,
-                backgroundColor: const Color(0xFF2C2C2E),
-                child: Image.asset(currentFriend.imagePath, height: 35,),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children:[
-                  Text(currentFriend.username, style: const TextStyle(fontSize: 16, color: Colors.white)),
-                  const Text('Active now', style: TextStyle(fontSize: 12, color: Colors.white70)),
-                ],
-              ),
-            ],
-          ),
         ),
         body: BlocBuilder<ChatCubit, ChatState>(
           builder: (context, state) {
-            if(state is ChatLoadingState) {
+            if (state is ChatLoadingState) {
               return const Center(child: CircularProgressIndicator());
             }
-            if(state is ChatLoadedState) {
-              List<MessageModel> messages = state.messengers;
-              return SafeArea(
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        itemCount: messages.length,
-                        itemBuilder: (context, index) => _buildMessage(messages[index]),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF121212),
-                        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2)],
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(icon: const Icon(Icons.emoji_emotions_outlined, color: Colors.white70), onPressed: () {}),
-                          IconButton(icon: const Icon(Icons.attach_file, color: Colors.white70), onPressed: () {}),
-                          Expanded(
-                            child: TextField(
-                              controller: _controller,
-                              style: const TextStyle(color: Colors.white),
-                              textInputAction: TextInputAction.send,
-                              onSubmitted: (_) => _send(context),
-                              decoration: InputDecoration(
-                                hintText: 'Nhắn tin...',
-                                hintStyle: const TextStyle(color: Colors.white54),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                filled: true,
-                                fillColor: const Color(0xFF2A2A2E),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                  borderSide: BorderSide.none,
+            if (state is ChatLoadedState) {
+              List<ChatModel> chats = state.chatFilter;
+              if (chats.isEmpty) {
+                return const Center(
+                  child: Text(
+                    "Danh sách rỗng",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              } else {
+                return SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                    child: Column(
+                      children: [
+                        // Thanh tìm kiếm
+                        TextField(
+                          controller: _searchController,
+                          onChanged: (value) {
+                            context.read<ChatCubit>().filter(value);
+                          },
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color(0xff2a282c),
+                            hintText: "Tìm kiếm",
+                            hintStyle: TextStyle(color: Colors.grey[350]),
+                            prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // List chat chiếm phần còn lại
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: chats.length,
+                            itemBuilder: (context, index) {
+                              final chat = chats[index];
+                              
+                              // Lấy thông tin người chat (member khác với currentUser)
+                              final otherMember = chat.members.firstWhere(
+                                (m) => m.id != widget.currentUserId,
+                                orElse: () => chat.members.first,
+                              );
+                              
+                              // Lấy tin nhắn cuối cùng
+                              final lastMessage = chat.lastMessage;
+                              final lastMessageText = lastMessage?.content ?? 'Chưa có tin nhắn';
+                              
+                              return ListTile(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                                leading: CircleAvatar(
+                                  radius: 26,
+                                  backgroundColor: const Color(0xff47444c),
+                                  backgroundImage: otherMember.avatar != null 
+                                    ? NetworkImage(otherMember.avatar!)
+                                    : null,
+                                  child: otherMember.avatar == null
+                                    ? Text(
+                                        otherMember.username?.substring(0, 1).toUpperCase() ?? '?',
+                                        style: const TextStyle(color: Colors.white, fontSize: 20),
+                                      )
+                                    : null,
                                 ),
-                              ),
-                            ),
+                                title: Text(
+                                  otherMember.username ?? 'Unknown',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  lastMessageText,
+                                  style: TextStyle(color: Colors.grey[400], fontSize: 13),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                trailing: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    if (chat.updatedAt != null)
+                                      Text(
+                                        _formatTime(chat.updatedAt!),
+                                        style: TextStyle(
+                                          color: Colors.grey[500],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    const SizedBox(height: 4),
+                                    const Icon(Icons.chevron_right, color: Colors.white54),
+                                  ],
+                                ),
+                                onTap: () {
+                                  debugPrint('Open chat with ${otherMember.username}');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MessagePage(
+                                        chatId: chat.id!,
+                                        currentFriend: otherMember,
+                                        currentUserId: widget.currentUserId,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
                           ),
-                          const SizedBox(width: 8),
-                          CircleAvatar(
-                            radius: 22,
-                            backgroundColor: const Color(0xFF0B84FF),
-                            child: IconButton(
-                              icon: const Icon(Icons.send, color: Colors.white),
-                              onPressed: () => _send(context),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                );
+              }
+            }
+            if (state is ChatErrorState) {
+              return const Center(
+                child: Text(
+                  "Có lỗi xảy ra",
+                  style: TextStyle(color: Colors.red),
                 ),
               );
             }
@@ -209,5 +178,21 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ),
     );
+  }
+
+  String _formatTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays == 0) {
+      // Hôm nay - hiển thị giờ
+      return '${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+    } else if (difference.inDays == 1) {
+      return 'Hôm qua';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} ngày trước';
+    } else {
+      return '${dateTime.day}/${dateTime.month}';
+    }
   }
 }
