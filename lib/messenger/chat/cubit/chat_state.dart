@@ -1,4 +1,4 @@
-import 'package:locket_beta/model/message_model.dart';
+import 'package:locket_beta/model/chat_model.dart';
 
 abstract class ChatState {}
 
@@ -11,16 +11,19 @@ class ChatLoadingState extends ChatState {
 }
 
 class ChatLoadedState extends ChatState {
-  List<MessageModel> messengers;
+  List<ChatModel> chats;
+  List<ChatModel> chatFilter;
 
   ChatLoadedState({
-    required this.messengers
+    required this.chats,
+    required this.chatFilter
   });
 
   ChatLoadedState copyWith({
-    List<MessageModel>? messengers,
+    List<ChatModel>? chats,
+    List<ChatModel>? chatFilter
   }) {
-    return ChatLoadedState(messengers: messengers ?? this.messengers);
+    return ChatLoadedState(chats: chats ?? this.chats, chatFilter: chatFilter ?? this.chatFilter);
   }
 }
 
