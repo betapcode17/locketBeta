@@ -1,91 +1,94 @@
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
-import 'package:locket_beta/home/cubit/camera_state.dart';
+import 'camera_state.dart';
 
 class CameraCubit extends Cubit<CameraState> {
-  CameraController? controller;
-  bool isFront = false;
-  double maxZoomLevel = 1.0;
-  CameraCubit() : super(CameraInitial());
-  Future<void> initializeCamera(List<CameraDescription> cameras) async {
+  final List<CameraDescription> cameras;
+
+  CameraCubit({required this.cameras}) : super(CameraInitial());
+
+  Future<void> initializeCamera() async {
+    if (cameras.isEmpty) {
+      emit(CameraError("Không có camera nào khả dụng"));
+      return;
+    }
+
     try {
       emit(CameraLoading());
-      controller = CameraController(cameras[0], ResolutionPreset.medium);
-      await controller!.initialize();
-      try {
-        maxZoomLevel = await controller!.getMaxZoomLevel();
-      } on CameraException catch (e) {
-        if (e.code == 'zoomLevelNotSupported') {
-          maxZoomLevel = 1.0;
-        } else {
-          rethrow;
-        }
-      } catch (e) {
-        rethrow;
-      }
-      emit(CameraReady(controller!, maxZoomLevel));
+      final controller = CameraController(
+        cameras[0],
+        ResolutionPreset.low,
+        enableAudio: false,
+      );
+      await controller.initialize();
+      emit(CameraReady(controller: controller));
     } catch (e) {
       emit(CameraError("Không thể khởi tạo camera: $e"));
     }
   }
 
-  Future<void> toggleCamera(List<CameraDescription> cameras) async {
+  Future<void> toggleCamera() async {
+    if (state is! CameraReady) return;
+    final currentState = state as CameraReady;
     try {
-      emit(CameraLoading());
-      isFront = !isFront;
-      controller = CameraController(
-        cameras[isFront ? 1 : 0],
-        ResolutionPreset.medium,
+      final newIndex = currentState.frontCamera ? 0 : 1;
+      if (newIndex >= cameras.length) return;
+
+      final controller = CameraController(
+        cameras[newIndex],
+        ResolutionPreset.ultraHigh,
+        enableAudio: false,
       );
-      await controller!.initialize();
-      try {
-        maxZoomLevel = await controller!.getMaxZoomLevel();
-      } on CameraException catch (e) {
-        if (e.code == 'zoomLevelNotSupported') {
-          maxZoomLevel = 1.0;
-        } else {
-          rethrow;
-        }
-      } catch (e) {
-        rethrow;
-      }
-      emit(CameraReady(controller!, maxZoomLevel));
+      await controller.initialize();
+      emit(currentState.copyWith(
+        controller: controller,
+        frontCamera: !currentState.frontCamera,
+      ));
     } catch (e) {
       emit(CameraError("Không thể chuyển camera: $e"));
     }
   }
 
   Future<void> toggleFlash() async {
-    if (controller == null) return;
-    final newMode = state.flashOn ? FlashMode.off : FlashMode.always;
+    if (state is! CameraReady) return;
+    final currentState = state as CameraReady;
     try {
-      await controller!.setFlashMode(newMode);
-    } on CameraException catch (e) {
-// Ignore if flash not supported
-      if (e.code != 'flashModeNotSupported') {
-        rethrow;
-      }
+      final newFlash = !currentState.flash;
+      await currentState.controller
+          .setFlashMode(newFlash ? FlashMode.always : FlashMode.off);
+      emit(currentState.copyWith(flash: newFlash));
+    } catch (e) {
+      // Flash không được hỗ trợ
     }
-    emit((state as CameraReady).copyWith(flashOn: !state.flashOn));
   }
 
-  Future<void> setZoomLevel(double zoom) async {
-    if (controller == null) return;
+  Future<void> setZoom(double zoom) async {
+    if (state is! CameraReady) return;
+    final currentState = state as CameraReady;
     try {
-      await controller!.setZoomLevel(zoom);
-    } on CameraException catch (e) {
-      if (e.code == 'zoomLevelNotSupported') {
-        return;
-      }
-      rethrow;
+      await currentState.controller.setZoomLevel(zoom);
+      emit(currentState.copyWith(zoom: zoom));
     } catch (e) {
-      rethrow;
+      // Zoom không được hỗ trợ
+    }
+  }
+
+  Future<void> takePicture(Function(String) onPictureTaken) async {
+    if (state is! CameraReady) return;
+    final currentState = state as CameraReady;
+    try {
+      final file = await currentState.controller.takePicture();
+      onPictureTaken(file.path);
+    } catch (e) {
+      // Lỗi chụp ảnh
     }
   }
 
   @override
   Future<void> close() {
-    controller?.dispose();
+    if (state is CameraReady) {
+      (state as CameraReady).controller.dispose();
+    }
     return super.close();
   }
 }

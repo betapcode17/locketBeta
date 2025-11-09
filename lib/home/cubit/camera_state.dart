@@ -1,11 +1,11 @@
-import 'package:camera/camera.dart';
 import 'package:equatable/equatable.dart';
+import 'package:camera/camera.dart';
 
 abstract class CameraState extends Equatable {
-  final bool flashOn;
-  const CameraState({this.flashOn = false});
+  const CameraState();
+
   @override
-  List<Object?> get props => [flashOn];
+  List<Object?> get props => [];
 }
 
 class CameraInitial extends CameraState {}
@@ -14,30 +14,39 @@ class CameraLoading extends CameraState {}
 
 class CameraReady extends CameraState {
   final CameraController controller;
-  final double maxZoomLevel;
-  const CameraReady(
-    this.controller,
-    this.maxZoomLevel, {
-    super.flashOn,
+  final bool frontCamera;
+  final bool flash;
+  final double zoom;
+
+  const CameraReady({
+    required this.controller,
+    this.frontCamera = false,
+    this.flash = false,
+    this.zoom = 1.0,
   });
+
   CameraReady copyWith({
-    bool? flashOn,
-    double? maxZoomLevel,
+    CameraController? controller,
+    bool? frontCamera,
+    bool? flash,
+    double? zoom,
   }) {
     return CameraReady(
-      controller,
-      maxZoomLevel ?? this.maxZoomLevel,
-      flashOn: flashOn ?? this.flashOn,
+      controller: controller ?? this.controller,
+      frontCamera: frontCamera ?? this.frontCamera,
+      flash: flash ?? this.flash,
+      zoom: zoom ?? this.zoom,
     );
   }
 
   @override
-  List<Object?> get props => [controller, flashOn, maxZoomLevel];
+  List<Object?> get props => [controller, frontCamera, flash, zoom];
 }
 
 class CameraError extends CameraState {
   final String message;
   const CameraError(this.message);
+
   @override
   List<Object?> get props => [message];
 }

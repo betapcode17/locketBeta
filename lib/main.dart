@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:camera/camera.dart';
-import 'package:locket_beta/home/cubit/camera_cubit.dart';
-import 'package:locket_beta/home/view/home.dart';
+import 'home/view/home.dart';
+import 'home/cubit/camera_cubit.dart';
 
 List<CameraDescription> cameras = [];
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  cameras = await availableCameras();
+  try {
+    cameras = await availableCameras();
+  } catch (e) {
+    debugPrint("❌ Lỗi camera: $e");
+  }
+
   runApp(MyApp(cameras: cameras));
 }
 
@@ -19,10 +24,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => CameraCubit()..initializeCamera(cameras),
-      child: const MaterialApp(
+      create: (_) => CameraCubit(cameras: cameras)..initializeCamera(),
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: HomeScreen(),
+        home: const HomeScreen(),
       ),
     );
   }
