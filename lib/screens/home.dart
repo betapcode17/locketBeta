@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () {
                   // TODO: current ID cần phải lấy từ khi đăng nhập và truyền vào
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => ChatPage(currentUserId: "690effbcb90f29f230c54996",)));
+                      MaterialPageRoute(builder: (context) => ChatPage(currentUserId: "690effbcb90f29f230c54995",)));
                 },
                 icon: const Icon(
                   Icons.chat_bubble_outline,
