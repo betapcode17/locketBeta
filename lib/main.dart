@@ -1,35 +1,34 @@
-
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import './screens/home.dart';
-import './settings/sizes.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:camera/camera.dart';
+import 'home/view/home.dart';
+import 'home/cubit/camera_cubit.dart';
 
+List<CameraDescription> cameras = [];
 
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    cameras = await availableCameras();
+  } catch (e) {
+    debugPrint("❌ Lỗi camera: $e");
+  }
 
-  cameras = await availableCameras();
-
-  runApp(MyApp());
+  runApp(MyApp(cameras: cameras));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final List<CameraDescription> cameras;
+  const MyApp({super.key, required this.cameras});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return BlocProvider(
+      create: (_) => CameraCubit(cameras: cameras)..initializeCamera(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: const HomeScreen(),
       ),
-      home:  HomeScreen(),
     );
   }
 }
-
