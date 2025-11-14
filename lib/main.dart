@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:camera/camera.dart';
 import 'home/view/home.dart';
-import 'home/cubit/camera_cubit.dart';
+import 'camera/cubit/camera_cubit.dart';
 
 List<CameraDescription> cameras = [];
 
@@ -11,7 +11,7 @@ Future<void> main() async {
   try {
     cameras = await availableCameras();
   } catch (e) {
-    debugPrint("❌ Lỗi camera: $e");
+    debugPrint("Lỗi camera: $e");
   }
 
   runApp(MyApp(cameras: cameras));

@@ -1,6 +1,6 @@
+import 'dart:io';
 import 'dart:ui';
 
-import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,8 +8,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locket_beta/settings/sizes.dart';
 import 'package:locket_beta/home/view/preview.dart';
 import 'package:locket_beta/history/view/history.dart';
-import '../cubit/camera_cubit.dart';
-import '../cubit/camera_state.dart';
+import 'package:path_provider/path_provider.dart';
+import '../../camera/cubit/camera_cubit.dart';
+import '../../camera/cubit/camera_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -51,7 +52,20 @@ class _HomeScreenState extends State<HomeScreen> {
     _cubit.setZoom(_currentScale);
   }
 
-  void _onPictureTaken(String path) {
+  Future<String> getUploadDirectory() async {
+    final Directory appDocDir = await getApplicationDocumentsDirectory();
+    final Directory uploadDir = Directory('${appDocDir.path}/uploads');
+
+    if (!await uploadDir.exists()) {
+      await uploadDir.create(recursive: true);
+    }
+
+    return uploadDir.path;
+  }
+
+  void _onPictureTaken(String path) async {
+    print('Ảnh đã lưu: ${path}');
+
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,

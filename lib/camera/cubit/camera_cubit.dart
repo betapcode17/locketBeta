@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
+import 'package:path_provider/path_provider.dart';
 import 'camera_state.dart';
 
 class CameraCubit extends Cubit<CameraState> {
@@ -59,6 +61,7 @@ class CameraCubit extends Cubit<CameraState> {
       emit(currentState.copyWith(flash: newFlash));
     } catch (e) {
       // Flash không được hỗ trợ
+      print(e);
     }
   }
 
@@ -69,8 +72,17 @@ class CameraCubit extends Cubit<CameraState> {
       await currentState.controller.setZoomLevel(zoom);
       emit(currentState.copyWith(zoom: zoom));
     } catch (e) {
-      // Zoom không được hỗ trợ
+      print(e);
     }
+  }
+
+  Future<Directory> getExternalUploadDirectory() async {
+    final Directory? extDir = await getExternalStorageDirectory();
+    final Directory uploadDir = Directory('${extDir!.path}/uploads');
+    if (!await uploadDir.exists()) {
+      await uploadDir.create(recursive: true);
+    }
+    return uploadDir;
   }
 
   Future<void> takePicture(Function(String) onPictureTaken) async {
@@ -78,9 +90,18 @@ class CameraCubit extends Cubit<CameraState> {
     final currentState = state as CameraReady;
     try {
       final file = await currentState.controller.takePicture();
-      onPictureTaken(file.path);
+
+      final uploadDir =
+          await getExternalUploadDirectory(); // <- external storage
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final newFileName = 'image_$timestamp.jpg';
+      final newFile =
+          await File(file.path).copy('${uploadDir.path}/$newFileName');
+
+      print('Ảnh đã lưu tại: ${newFile.path}');
+      onPictureTaken(newFile.path);
     } catch (e) {
-      // Lỗi chụp ảnh
+      print('Lỗi khi chụp/lưu ảnh: $e');
     }
   }
 
