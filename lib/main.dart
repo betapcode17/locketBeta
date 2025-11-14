@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:camera/camera.dart';
+import 'package:locket_beta/messenger/chat/chat.dart';
 import 'home/view/home.dart';
 import 'home/cubit/camera_cubit.dart';
 
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
       create: (_) => CameraCubit(cameras: cameras)..initializeCamera(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: const HomeScreen(),
+        home: ChatPage(currentUserId: "690effbcb90f29f230c54995"),
       ),
     );
   }
