@@ -33,7 +33,7 @@ class MessageModel {
         : (senderField?['_id'] ?? senderField?['id'])?.toString() ?? '';
 
     final DateTime created = json['createdAt'] != null
-        ? DateTime.parse(json['createdAt'])
+        ? DateTime.parse(json['createdAt']).toLocal()
         : DateTime.now();
 
     final bool isMe = currentUserId != null

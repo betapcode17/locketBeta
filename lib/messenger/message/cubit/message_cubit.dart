@@ -26,7 +26,7 @@ class MessageCubit extends Cubit<MessageState> {
     );
     // Lắng nghe messages từ server
     _channel!.stream.listen((message) {
-      print("Da stream voi server");
+      print("Da stream voi server message");
       // Parse message từ JSON
       final data = jsonDecode(message);
       if (data is! Map<String, dynamic>) return;
@@ -54,11 +54,6 @@ class MessageCubit extends Cubit<MessageState> {
         'content': content,
         'type': 'text',
       };
-      // final MessageModel newMessage = MessageModel(senderId: currentUserId, content: content, createdAt: DateTime.now(), isMe: true);
-      // if (state is MessageLoadedState) {
-      //   final current = (state as MessageLoadedState).messengers;
-      //   emit(MessageLoadedState(messengers: [...current, newMessage]));
-      // }
       _channel!.sink.add(jsonEncode(message)); // gửi qua WS
     }
   }
@@ -99,8 +94,26 @@ class MessageCubit extends Cubit<MessageState> {
       }
     } catch (e) {
       print("Loi: "+ e.toString());
+      emit(MessageErrorState());
     }
     return [];
+  }
+
+  Future<void> deleteMessage(String idMess) async {
+    Dio dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:8000"));
+    try {
+      final res = await dio.delete("/api/messages/$idMess");
+      if(res.statusCode == 200) {
+        await loadData();
+      }
+      else {
+        emit(MessageErrorState());
+      }
+    }
+    catch(e) {
+      print("Loi: "+ e.toString());
+      emit(MessageErrorState());
+    }
   }
 
   Future<void> loadData() async {

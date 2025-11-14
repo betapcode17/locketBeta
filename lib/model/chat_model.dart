@@ -116,7 +116,7 @@ class ChatModel {
       }
       // ưu tiên lấy thời gian từ lastMessage nếu có, ngược lại thử root updatedAt
       if (lastMesssage != null) {
-        updatedAt = lastMesssage.createdAt;
+        updatedAt = lastMesssage.createdAt.toLocal();
       } else {
         final dynamic rootUpdated = json['updatedAt'];
         if (rootUpdated != null) {

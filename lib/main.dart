@@ -3,6 +3,7 @@ import 'dart:developer' as developer; // Cho better logging
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:camera/camera.dart';
+import 'package:locket_beta/messenger/chat/chat.dart';
 import 'home/view/home.dart';
 import 'camera/cubit/camera_cubit.dart';
 import 'photo/cubit/photo_cubit.dart'; // Thêm import PhotoCubit
