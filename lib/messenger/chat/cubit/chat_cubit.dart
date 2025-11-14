@@ -1,23 +1,47 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locket_beta/messenger/chat/cubit/chat_state.dart';
 import 'package:locket_beta/model/chat_model.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ChatCubit extends Cubit<ChatState>{
   String currentUserId;
+  WebSocketChannel? _channel;
   ChatCubit({
       required this.currentUserId,
-  }) :super(ChatInitialState());
+  }) :super(ChatInitialState()) {
+    _connectWebSocket();
+    loadData();
+  }
+
+  void _connectWebSocket() {
+    _channel = WebSocketChannel.connect(
+      Uri.parse('ws://10.0.2.2:8000?userId=$currentUserId'),
+    );
+    // Lắng nghe messages từ server
+    _channel!.stream.listen((message) {
+      print("Da stream voi server");
+      // Parse message từ JSON
+      final data = jsonDecode(message);
+      if(data['event'] == 'chat_updated') {
+        final updatedChat = ChatModel.fromJson(data['chat']);
+        if (state is ChatLoadedState) {
+          final current = (state as ChatLoadedState);
+          final updatedChats = current.chats.map((c) => c.id == updatedChat.id ? updatedChat : c).toList();
+          emit(ChatLoadedState(chats: updatedChats, chatFilter: updatedChats));
+        }
+      }
+    }, onError: (error) {
+      emit(ChatErrorState());
+    });
+  }
 
   void loadData() async {
     Dio dio = Dio(BaseOptions(baseUrl: "http://10.0.2.2:8000"));
     emit(ChatLoadingState());
     try {
-      // List<UserModel> friends = [
-      //   UserModel(username: "Le Van A"),
-      //   UserModel(username: "Le Van B"),
-      //   UserModel(username: "Nguyen Thi A")
-      // ];
       final response = await dio.get("/api/chats/$currentUserId");
       if(response.statusCode == 200) {
         final data = response.data;
@@ -28,7 +52,7 @@ class ChatCubit extends Cubit<ChatState>{
         // Parse danh sách chat từ JSON
         List<ChatModel> chats = chatsJson
             .map((json) {
-              print('Raw chat JSON: $json'); // <-- thêm log này
+              print('Raw chat JSON: $json');
               return ChatModel.fromJson(json as Map<String, dynamic>);
             })
             .toList();
@@ -40,7 +64,6 @@ class ChatCubit extends Cubit<ChatState>{
     }
     catch(e) {
       emit(ChatErrorState());
-      print(e.toString());
     }
   }
 
