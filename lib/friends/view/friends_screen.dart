@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locket_beta/friends/cubit/friend_cubit.dart';
 import 'package:locket_beta/friends/cubit/friend_state.dart';
 import 'package:locket_beta/model/friend_model.dart';
-import 'package:locket_beta/screens/home.dart';
+import 'package:locket_beta/home/view/home.dart';
 
 class FriendsScreen extends StatelessWidget {
   const FriendsScreen({super.key});

@@ -4,7 +4,8 @@ import 'package:locket_beta/landing/views/landing_ui.dart';
 import '../cubit/login_cubit.dart';
 import '../cubit/login_state.dart';
 import 'package:locket_beta/model/login_model.dart';
-import 'package:locket_beta/screens/home.dart';
+import 'package:locket_beta/home/view/home.dart';
+import "package:locket_beta/landing/views/landing_ui.dart";
 
 class LoginUI extends StatefulWidget {
   const LoginUI({super.key});

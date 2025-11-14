@@ -2,10 +2,10 @@ import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:locket_beta/friends/friends_screen.dart';
+import 'package:locket_beta/friends/view/friends_screen.dart';
+import 'package:locket_beta/history/view/history.dart';
+import 'package:locket_beta/home/view/preview.dart';
 import 'package:locket_beta/messenger/chat/chat.dart';
-import 'package:locket_beta/screens/history.dart';
-import 'package:locket_beta/screens/preview.dart';
 import 'package:locket_beta/settings/sizes.dart';
 import 'package:locket_beta/profile/profile.dart';
 
@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () {
                   // TODO: current ID cần phải lấy từ khi đăng nhập và truyền vào
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => ChatPage(currentUserId: "690effbcb90f29f230c54996",)));
+                      MaterialPageRoute(builder: (context) => ChatPage(currentUserId: "690effbcb90f29f230c54995",)));
                 },
                 icon: const Icon(
                   Icons.chat_bubble_outline,
