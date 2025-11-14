@@ -2,6 +2,7 @@ class LoginModel {
   //final String token;
   final String email;
   final String password;
+  final String? token;
   bool showPassword;
 
   LoginModel(
@@ -9,6 +10,7 @@ class LoginModel {
       //required this.token,
       required this.email,
       required this.password,
+      this.token,
       required this.showPassword});
 
   // factory LoginModel.fromJson(Map<String, dynamic> json) {
