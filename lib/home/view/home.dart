@@ -1,16 +1,17 @@
-import 'dart:io';
 import 'dart:ui';
 
+import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:locket_beta/camera/cubit/camera_state.dart';
+import 'package:locket_beta/friends/view/friends_screen.dart';
+import 'package:locket_beta/profile/profile.dart';
 
 import 'package:locket_beta/settings/sizes.dart';
 import 'package:locket_beta/home/view/preview.dart';
 import 'package:locket_beta/history/view/history.dart';
-import 'package:path_provider/path_provider.dart';
-import '../../camera/cubit/camera_cubit.dart';
-import '../../camera/cubit/camera_state.dart';
+import 'package:locket_beta/camera/cubit/camera_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -52,20 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _cubit.setZoom(_currentScale);
   }
 
-  Future<String> getUploadDirectory() async {
-    final Directory appDocDir = await getApplicationDocumentsDirectory();
-    final Directory uploadDir = Directory('${appDocDir.path}/uploads');
-
-    if (!await uploadDir.exists()) {
-      await uploadDir.create(recursive: true);
-    }
-
-    return uploadDir.path;
-  }
-
-  void _onPictureTaken(String path) async {
-    print('Ảnh đã lưu: ${path}');
-
+  void _onPictureTaken(String path) {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -82,34 +70,44 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff1d1b20),
-      body: Container(
-        padding: const EdgeInsets.symmetric(vertical: 40),
-        height: Sizes.height(context),
-        width: Sizes.width(context),
-        child: Stack(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              height: 70,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: const Color(0xff47444c),
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.person,
-                        color: Colors.white.withOpacity(0.5),
-                      ),
+      body: Column(
+        children: [
+          // Header (thay thế phần trên của Stack)
+          SizedBox(
+            height: 40,
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            height: 70,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: const Color(0xff47444c),
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => ProfileScreen()),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.person,
+                      color: Colors.white.withOpacity(0.5),
                     ),
                   ),
-                  Container(
+                ),
+                GestureDetector(
+                  onDoubleTap: () => {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => FriendsScreen()),
+                    )
+                  },
+                  child: Container(
                     alignment: Alignment.center,
                     width: 150,
                     height: 40,
@@ -125,25 +123,32 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: const Color(0xff47444c),
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.chat_bubble_outline,
-                        color: Colors.white.withOpacity(0.5),
-                      ),
+                ),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: const Color(0xff47444c),
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => ProfileScreen()),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.chat_bubble_outline,
+                      color: Colors.white.withOpacity(0.5),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            BlocBuilder<CameraCubit, CameraState>(
+          ),
+          // Body: Expanded để lấy phần còn lại, thay thế Stack bằng BlocBuilder trực tiếp
+          Expanded(
+            child: BlocBuilder<CameraCubit, CameraState>(
               bloc: _cubit,
               builder: (context, state) {
                 if (state is CameraLoading) {
@@ -184,6 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   child: Column(
                     children: [
+                      // Phần camera preview (thay thế GestureDetector của Stack)
                       GestureDetector(
                         onVerticalDragUpdate: (details) {
                           if (details.delta.dy < 0) {
@@ -342,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               Container(
                                 margin:
-                                    const EdgeInsets.symmetric(vertical: 20),
+                                    const EdgeInsets.symmetric(vertical: 80),
                                 width: 125,
                                 alignment: Alignment.center,
                                 child: Column(
@@ -389,6 +395,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
+                      // Phần history (thay thế GestureDetector của Stack)
                       GestureDetector(
                         onVerticalDragUpdate: (details) {
                           if (details.delta.dy > 0) {
@@ -410,8 +417,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

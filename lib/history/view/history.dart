@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:locket_beta/profile/profile.dart';
 import 'history_grid.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -35,60 +36,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
       padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 5),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            height: 70,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: const Color(0xff47444c),
-                  ),
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.person,
-                      color: Colors.white.withOpacity(0.5),
-                    ),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  width: 150,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: const Color(0xff47444c),
-                  ),
-                  child: const Text(
-                    "Add Friends",
-                    style: TextStyle(
-                      color: Color(0xffffffff),
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: const Color(0xff47444c),
-                  ),
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.chat_bubble_outline,
-                      color: Colors.white.withOpacity(0.5),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          SizedBox(
+            height: 100,
           ),
           _buildHeader(),
           Expanded(
