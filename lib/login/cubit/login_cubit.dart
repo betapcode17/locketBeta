@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locket_beta/model/login_model.dart';
 import 'package:locket_beta/utils/api_client.dart';
 import 'login_state.dart';
+import "package:locket_beta/utils/local_storage.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 class LoginCubit extends Cubit<LoginState> {
@@ -21,16 +22,23 @@ class LoginCubit extends Cubit<LoginState> {
       if (response.statusCode == 200) {
         final data = response.data;
 
+        final userId = data["user"]["_id"];
+
         final user = LoginModel(
           email: data["user"]["email"],
           password: password,
           token: data["accessToken"],
           showPassword: false,
+          userId: userId,
         );
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString("accessToken", data["accessToken"]);
         await prefs.setString("refreshToken", data["refreshToken"] ?? "");
+
+        if (userId != null) {
+          await LocalStorage.saveUserId(userId);
+        }
 
         emit(LoginSuccess(user));
       } else {
