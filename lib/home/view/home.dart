@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locket_beta/camera/cubit/camera_state.dart';
 import 'package:locket_beta/friends/view/friends_screen.dart';
+import 'package:locket_beta/messenger/chat/chat.dart';
 import 'package:locket_beta/profile/profile.dart';
 import 'package:locket_beta/photo/cubit/photo_cubit.dart';
 import 'package:locket_beta/settings/sizes.dart';
@@ -28,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late final CameraCubit _cameraCubit;
   late final PhotoCubit _photoCubit;
-
+  
   @override
   void initState() {
     super.initState();
@@ -128,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: const Color(0xff47444c),
                       ),
                       child: const Text(
-                        "Add Friends",
+                        "Add Friend",
                         style: TextStyle(
                           color: Color(0xffffffff),
                           fontSize: 17,
@@ -145,10 +146,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: IconButton(
                       onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const ProfileScreen()),
-                        );
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => ChatPage(currentUserId: "690effbcb90f29f230c54995",)));
                       },
                       icon: Icon(
                         Icons.chat_bubble_outline,
