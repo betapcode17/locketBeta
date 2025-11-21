@@ -90,15 +90,13 @@ class PhotoCubit extends Cubit<PhotoState> {
     }
   }
 
-  // READ ALL (sử dụng _dio)
-  Future<void> fetchPhotos(String userId,
-      {int page = 1, int limit = 10}) async {
+  // READ ALL (backend không hỗ trợ pagination hoặc filter userId, chỉ lấy tất cả)
+  Future<void> fetchPhotos() async {
+    // Đổi signature: bỏ userId, page, limit
     emit(PhotoLoading());
     try {
-      String query = '?page=$page&limit=$limit';
-      if (userId.isNotEmpty) query += '&userId=$userId';
-
-      final response = await _dio.get('/photos$query');
+      // Không dùng query params vì backend không hỗ trợ
+      final response = await _dio.get('/photos');
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -128,19 +126,28 @@ class PhotoCubit extends Cubit<PhotoState> {
       if (response.statusCode == 200) {
         final photo = PhotoModel.fromJson(response.data);
         emit(PhotoLoaded([photo]));
+      } else if (response.statusCode == 404) {
+        final errorMsg = response.data['message'] ?? "Không tìm thấy ảnh";
+        emit(PhotoError(errorMsg));
       } else {
         emit(PhotoError("Không tìm thấy ảnh"));
       }
     } on DioException catch (e) {
       print('❌ Get Dio error: ${e.message}');
-      emit(PhotoError('Không thể lấy ảnh: ${e.message}'));
+      if (e.response?.statusCode == 404) {
+        final errorMsg = e.response?.data['message'] ?? 'Không tìm thấy ảnh';
+        emit(PhotoError(errorMsg));
+      } else {
+        emit(PhotoError('Không thể lấy ảnh: ${e.message}'));
+      }
     } catch (e) {
       print('❌ Get error: $e');
       emit(PhotoError("Không thể lấy ảnh: $e"));
     }
   }
 
-  // UPDATE
+  // UPDATE: Backend chưa có endpoint, tạm comment out
+  /*
   Future<void> updatePhoto({
     required String id,
     String? imageUrl,
@@ -171,6 +178,7 @@ class PhotoCubit extends Cubit<PhotoState> {
       emit(PhotoError("Không thể cập nhật ảnh: $e"));
     }
   }
+  */
 
   // DELETE
   Future<void> deletePhoto(String photoId) async {
@@ -180,12 +188,20 @@ class PhotoCubit extends Cubit<PhotoState> {
 
       if (response.statusCode == 200) {
         emit(PhotoDeleted(photoId));
+      } else if (response.statusCode == 404) {
+        final errorMsg = response.data['message'] ?? "Không thể xóa ảnh";
+        emit(PhotoError(errorMsg));
       } else {
         emit(PhotoError("Không thể xóa ảnh"));
       }
     } on DioException catch (e) {
       print('❌ Delete Dio error: ${e.message}');
-      emit(PhotoError('Không thể xóa ảnh: ${e.message}'));
+      if (e.response?.statusCode == 404) {
+        final errorMsg = e.response?.data['message'] ?? 'Không thể xóa ảnh';
+        emit(PhotoError(errorMsg));
+      } else {
+        emit(PhotoError('Không thể xóa ảnh: ${e.message}'));
+      }
     } catch (e) {
       print('❌ Delete error: $e');
       emit(PhotoError("Không thể xóa ảnh: $e"));
