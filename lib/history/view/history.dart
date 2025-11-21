@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:locket_beta/settings/global.dart'; // Nếu bạn dùng biến/hàm global trong dự án
-import 'history_grid.dart'; // import file chứa HistoryGrid
+import 'package:locket_beta/profile/profile.dart';
+import 'history_grid.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -36,6 +36,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
       padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 5),
       child: Column(
         children: [
+          SizedBox(
+            height: 100,
+          ),
           _buildHeader(),
           Expanded(
             child: SingleChildScrollView(

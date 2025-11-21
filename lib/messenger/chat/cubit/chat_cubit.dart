@@ -22,10 +22,12 @@ class ChatCubit extends Cubit<ChatState>{
     );
     // Lắng nghe messages từ server
     _channel!.stream.listen((message) {
-      print("Da stream voi server");
+      print("Da stream voi server chat");
       // Parse message từ JSON
       final data = jsonDecode(message);
+      if (data is! Map<String, dynamic>) return;
       if(data['event'] == 'chat_updated') {
+        print("đã nhận được event chat_updated từ server");
         final updatedChat = ChatModel.fromJson(data['chat']);
         if (state is ChatLoadedState) {
           final current = (state as ChatLoadedState);
