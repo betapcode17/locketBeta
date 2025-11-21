@@ -3,6 +3,9 @@ class SignupModel {
   final String email;
   final String password;
 
+  String? accessToken;
+  String? refreshToken;
+
   bool emailInvalid;
   bool passwordInvalid;
 
@@ -10,6 +13,8 @@ class SignupModel {
     required this.username,
     required this.email,
     required this.password,
+    this.accessToken,
+    this.refreshToken,
     this.emailInvalid = false,
     this.passwordInvalid = false,
   });
