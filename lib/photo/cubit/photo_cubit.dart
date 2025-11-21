@@ -5,7 +5,7 @@ import 'package:locket_beta/photo/cubit/photo_state.dart';
 
 class PhotoCubit extends Cubit<PhotoState> {
   static const String baseUrl =
-      'http://10.0.2.2:5001/api'; // FIX: Port 5001, emulator IP (device: IP máy:5001)
+      'http://10.0.2.2:8000/api'; // FIX: Port 5001, emulator IP (device: IP máy:5001)
   late final Dio _dio;
 
   PhotoCubit() : super(PhotoInitial()) {

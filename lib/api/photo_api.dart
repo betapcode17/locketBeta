@@ -3,7 +3,7 @@ import 'package:locket_beta/model/photo_model.dart';
 
 class PhotoApi {
   static const String baseUrl =
-      'http://10.0.2.2:5001/api'; // FIX: localhost → 10.0.2.2 (emulator); thay IP máy cho device
+      'http://10.0.2.2:8000/api'; // FIX: localhost → 10.0.2.2 (emulator); thay IP máy cho device
   late final Dio _dio;
 
   PhotoApi() {

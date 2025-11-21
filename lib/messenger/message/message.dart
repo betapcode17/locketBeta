@@ -43,7 +43,7 @@ class _MessagePageState extends State<MessagePage> {
     });
   }
 
-  Widget _buildMessage(MessageModel m) {
+  Widget _buildMessage(MessageModel m, BuildContext context) {
     final bubbleColor = m.isMe ? const Color(0xFF0B84FF) : const Color(0xFF2A2A2E);
     final textColor = m.isMe ? Colors.white : Colors.white70;
     final align = m.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
@@ -54,50 +54,113 @@ class _MessagePageState extends State<MessagePage> {
       bottomRight: Radius.circular(m.isMe ? 4 : 16),
     );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Column(
-        crossAxisAlignment: align,
-        children: [
-          Row(
-            mainAxisAlignment: m.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-            children: [
-              if (!m.isMe)
-                const CircleAvatar(
-                  radius: 16,
-                  backgroundColor: Color(0xFF3A3A3E),
-                  child: Icon(Icons.person, size: 18, color: Colors.white70),
-                ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: bubbleColor,
-                    borderRadius: borderRadius,
+    return GestureDetector(
+      onLongPress: m.isMe ? () => _onLongPressMessage(context, m) : null,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Column(
+          crossAxisAlignment: align,
+          children: [
+            Row(
+              mainAxisAlignment: m.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+              children: [
+                if (!m.isMe)
+                  const CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Color(0xFF3A3A3E),
+                    child: Icon(Icons.person, size: 18, color: Colors.white70),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  child: Text(m.content, style: TextStyle(color: textColor)),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: bubbleColor,
+                      borderRadius: borderRadius,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    child: Text(m.content, style: TextStyle(color: textColor)),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              if (m.isMe)
-                const CircleAvatar(
-                  radius: 16,
-                  backgroundColor:  Color(0xFF0A74D1),
-                  child: Icon(Icons.person, size: 18, color: Colors.white),
-                ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Padding(
-            padding: EdgeInsets.only(left: m.isMe ? 0 : 48, right: m.isMe ? 48 : 0),
-            child: Text(
-              _formatTime(m.createdAt),
-              style: const TextStyle(fontSize: 11, color: Colors.white54),
+                const SizedBox(width: 8),
+                if (m.isMe)
+                  const CircleAvatar(
+                    radius: 16,
+                    backgroundColor:  Color(0xFF0A74D1),
+                    child: Icon(Icons.person, size: 18, color: Colors.white),
+                  ),
+              ],
             ),
-          )
-        ],
+            const SizedBox(height: 4),
+            Padding(
+              padding: EdgeInsets.only(left: m.isMe ? 0 : 48, right: m.isMe ? 48 : 0),
+              child: Text(
+                _formatTime(m.createdAt),
+                style: const TextStyle(fontSize: 11, color: Colors.white54),
+              ),
+            )
+          ],
+        ),
       ),
+    );
+  }
+
+  // hàm hiển thị menu khi long press
+  void _onLongPressMessage(BuildContext ctx, MessageModel m) {
+    final cubit = ctx.read<MessageCubit>();
+    showModalBottomSheet(
+      context: ctx,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+      ),
+      builder: (c) {
+        return BlocProvider.value(
+          value: cubit,
+          child: SafeArea(
+            child: Wrap(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.delete_forever, color: Colors.red),
+                  title: const Text('Xoá tin nhắn', style: TextStyle(color: Colors.white)),
+                  onTap: () async {
+                    Navigator.of(c).pop(); // đóng bottom sheet
+          
+                    
+                    final messenger = ScaffoldMessenger.of(ctx);
+          
+                    final confirmed = await showDialog<bool>(
+                      context: ctx,
+                      builder: (dCtx) => AlertDialog(
+                        title: const Text('Xác nhận'),
+                        content: const Text('Bạn có chắc muốn xoá tin nhắn này?'),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.of(dCtx).pop(false), child: const Text('Huỷ')),
+                          TextButton(onPressed: () => Navigator.of(dCtx).pop(true), child: const Text('Xoá')),
+                        ],
+                      ),
+                    );
+                    if (confirmed == true) {
+                      // gọi cubit để xóa (optimistic update)
+                      try {
+                        print("MessageIDdddddddddddddddddđ:" + m.id.toString());
+                        cubit.deleteMessage(m.id ?? '');
+                      } catch (e) {
+                        // nếu cần, hiển thị lỗi ngắn
+                        messenger.showSnackBar(const SnackBar(content: Text('Xoá thất bại')));
+                      }
+                    }
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.cancel, color: Colors.white70),
+                  title: const Text('Huỷ', style: TextStyle(color: Colors.white)),
+                  onTap: () => Navigator.of(c).pop(),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -110,7 +173,8 @@ class _MessagePageState extends State<MessagePage> {
   @override
     Widget build(BuildContext context) {
     return BlocProvider<MessageCubit>(
-      create: (context) => MessageCubit(currentFriend: currentFriend, chatId: widget.chatId, currentUserId: widget.currentUserId)..loadData(),
+      create: (context) => MessageCubit(currentFriend: currentFriend, 
+            chatId: widget.chatId, currentUserId: widget.currentUserId)..loadData(),
       child: Scaffold(
         backgroundColor: const Color(0xFF121212),
         appBar: AppBar(
@@ -159,7 +223,7 @@ class _MessagePageState extends State<MessagePage> {
                         controller: _scrollController,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         itemCount: messages.length,
-                        itemBuilder: (context, index) => _buildMessage(messages[index]),
+                        itemBuilder: (context, index) => _buildMessage(messages[index], context),
                       ),
                     ),
                     Container(

@@ -3,6 +3,9 @@ import 'dart:developer' as developer; // Cho better logging
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:camera/camera.dart';
+import 'package:locket_beta/landing/views/landing_ui.dart';
+import 'package:locket_beta/messenger/chat/chat.dart';
+import 'package:locket_beta/signup/cubit/signup_cubit.dart';
 import 'home/view/home.dart';
 import 'camera/cubit/camera_cubit.dart';
 import 'photo/cubit/photo_cubit.dart'; // Thêm import PhotoCubit
@@ -42,11 +45,14 @@ class MyApp extends StatelessWidget {
           // Thêm PhotoCubit để fix provider error
           create: (_) => PhotoCubit(),
         ),
+        BlocProvider<SignupCubit>(
+          create: (_) => SignupCubit(), // <- thêm đây
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Locket Beta',
-        home: const HomeScreen(),
+        home: LandingUI(),
       ),
     );
   }
