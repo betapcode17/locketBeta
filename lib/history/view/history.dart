@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locket_beta/friends/view/friends_screen.dart';
+import 'package:locket_beta/home/view/home.dart';
 import 'package:locket_beta/messenger/chat/chat.dart';
 import 'package:locket_beta/photo/cubit/photo_cubit.dart';
 import 'package:locket_beta/photo/cubit/photo_state.dart';
@@ -370,7 +371,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
           icon: const Icon(Icons.more_horiz, color: Colors.white, size: 28),
         ),
         GestureDetector(
-          onTap: () => setState(() => clicked = !clicked),
+          onTap: () {
+            setState(() => clicked = !clicked);
+
+            // 👉 Chuyển sang trang Home sau 100ms cho animation chạy
+            Future.delayed(const Duration(milliseconds: 120), () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => HomeScreen()),
+              );
+            });
+          },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 100),
             width: clicked ? 50 : 70,
