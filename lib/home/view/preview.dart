@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locket_beta/photo/cubit/photo_cubit.dart';
 import 'package:locket_beta/photo/cubit/photo_state.dart';
 import 'package:locket_beta/settings/global.dart';
+import "package:locket_beta/utils/local_storage.dart";
 
 class ImagePreview extends StatefulWidget {
   const ImagePreview({
@@ -48,10 +49,15 @@ class _ImagePreviewState extends State<ImagePreview> {
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
+      final userId = await LocalStorage.getUserId();
+      if (userId == null) {
+        throw Exception("UserId not found in local storage");
+      }
+
       await photoCubit.uploadPhoto(
         imageUrl: widget.imagePath,
         // imageUrl: widget.imagePath, // Uncomment sau khi test OK
-        userId: '6911d640d34f6a5c5694199e',
+        userId: userId,
         caption: caption.isNotEmpty ? caption : null,
       );
 

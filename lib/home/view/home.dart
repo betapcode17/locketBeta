@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late final CameraCubit _cameraCubit;
   late final PhotoCubit _photoCubit;
-  
+
   @override
   void initState() {
     super.initState();
@@ -146,8 +146,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: IconButton(
                       onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => ChatPage(currentUserId: "690effbcb90f29f230c54995",)));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChatPage(
+                                      currentUserId: "690effbcb90f29f230c54995",
+                                    )));
                       },
                       icon: Icon(
                         Icons.chat_bubble_outline,
