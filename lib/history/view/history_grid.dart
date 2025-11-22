@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:locket_beta/home/view/home.dart';
+import 'package:locket_beta/model/photo_model.dart';
 
 class HistoryGrid extends StatelessWidget {
-  const HistoryGrid({super.key});
+  const HistoryGrid({super.key, required List<PhotoModel> photos});
 
   @override
   Widget build(BuildContext context) {

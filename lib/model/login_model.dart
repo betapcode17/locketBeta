@@ -11,7 +11,8 @@ class LoginModel {
       required this.email,
       required this.password,
       this.token,
-      required this.showPassword});
+      required this.showPassword,
+      required userId});
 
   // factory LoginModel.fromJson(Map<String, dynamic> json) {
   //   return LoginModel(

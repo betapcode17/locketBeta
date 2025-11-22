@@ -50,6 +50,7 @@ class _LoginUIState extends State<LoginUI> {
       email: '',
       password: '',
       showPassword: false,
+      userId: null,
     );
   }
 
@@ -227,6 +228,7 @@ class _LoginUIState extends State<LoginUI> {
                       email: _emailController.text,
                       password: _passwordController.text,
                       showPassword: !_loginModel.showPassword,
+                      userId: null,
                     );
                   });
                 },
