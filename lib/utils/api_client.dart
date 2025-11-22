@@ -25,8 +25,10 @@ class ApiClient {
         if (accessToken != null) {
           options.headers["Authorization"] = "Bearer $accessToken";
         }
+        print("Token being sent: $accessToken");
         return handler.next(options);
       },
+      
       onError: (DioException e, handler) async {
         // refresh here if 401
         if (e.response?.statusCode == 401) {
