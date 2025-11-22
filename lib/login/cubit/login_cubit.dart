@@ -22,7 +22,7 @@ class LoginCubit extends Cubit<LoginState> {
       if (response.statusCode == 200) {
         final data = response.data;
 
-        final userId = data["user"]["_id"];
+        final userId = data["user"]["id"];
 
         final user = LoginModel(
           email: data["user"]["email"],
