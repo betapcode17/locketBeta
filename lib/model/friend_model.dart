@@ -38,12 +38,17 @@ class Friend {
         ? activeValue
         : (activeValue.toString().toLowerCase() == 'true');
 
+    final String id = json['id']?.toString() ?? '';
+    final String name = json['name']?.toString() ?? 'Unknown';
+    final String lastSeenStr =
+        json['lastSeen']?.toString() ?? DateTime.now().toIso8601String();
+
     return Friend(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      profileImage: json['profileImage'] as String?,
+      id: id,
+      name: name,
+      profileImage: json['profileImage']?.toString(),
       isActive: active,
-      lastSeen: DateTime.parse(json['lastSeen'] as String),
+      lastSeen: DateTime.tryParse(lastSeenStr) ?? DateTime.now(),
     );
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locket_beta/friends/cubit/friend_cubit.dart';
 import 'package:locket_beta/friends/cubit/friend_state.dart';
 import 'package:locket_beta/model/friend_model.dart';
+import 'package:locket_beta/model/friend_request_model.dart';
 import 'package:locket_beta/home/view/home.dart';
 
 class FriendsScreen extends StatelessWidget {
@@ -11,226 +12,251 @@ class FriendsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => FriendCubit()..loadFriends(),
+      create: (_) => FriendCubit()
+        ..loadFriends()
+        ..loadFriendRequests()
+        ..loadRecommendations(),
       child: const FriendsView(),
     );
   }
 }
 
-class FriendsView extends StatelessWidget {
+class FriendsView extends StatefulWidget {
   const FriendsView({super.key});
 
   @override
+  State<FriendsView> createState() => _FriendsViewState();
+}
+
+class _FriendsViewState extends State<FriendsView>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final cubit = context.read<FriendCubit>();
+
     return Scaffold(
       backgroundColor: const Color(0xff151415),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12),
-          child: BlocBuilder<FriendCubit, FriendState>(
-            builder: (context, state) {
-              if (state is FriendLoading) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (state is FriendLoaded) {
-                return _buildBody(context, state.friends);
-              } else if (state is FriendError) {
-                return Center(
-                    child: Text(state.message,
-                        style: const TextStyle(color: Colors.white)));
-              }
-              return const Center(
-                  child: Text('No Friends',
-                      style: TextStyle(color: Colors.white)));
-            },
-          ),
+      appBar: AppBar(
+        backgroundColor: const Color(0xff151415),
+        foregroundColor: Colors.white, // <- thêm dòng này
+        title: const Text('Friends'),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: Colors.white, // màu chữ tab được chọn
+          unselectedLabelColor: Colors.grey, // màu chữ tab chưa chọn
+          tabs: const [
+            Tab(text: 'Your Friends'),
+            Tab(text: 'Requests'),
+            Tab(text: 'Recommendations'),
+          ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: Colors.orange,
-        child: const Icon(Icons.person_add),
+      body: Column(
+        children: [
+          // "Find Friend from other App"
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Find Friend from other App',
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _socialItem(
+                        imageUrl: "assets/images/mess_icon.jpg",
+                        label: 'Messenger'),
+                    _socialItem(
+                        imageUrl: "assets/images/zalo_icon.jpg", label: 'Zalo'),
+                    _socialItem(
+                        imageUrl: "assets/images/ig_icon.jpg",
+                        label: 'Instagram'),
+                    _socialItem(
+                        imageUrl: "assets/images/defaultUser.png",
+                        label: 'Others'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // Your Friends
+                BlocBuilder<FriendCubit, FriendState>(
+                  builder: (context, state) {
+                    if (state is FriendLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is FriendLoaded) {
+                      return _friendList(state.friends, cubit);
+                    } else if (state is FriendError) {
+                      return Center(
+                          child: Text(state.message,
+                              style: const TextStyle(color: Colors.white)));
+                    }
+                    return const Center(
+                        child: Text('No Friends',
+                            style: TextStyle(color: Colors.white)));
+                  },
+                ),
+
+                // Friend Requests
+                BlocBuilder<FriendCubit, FriendState>(
+                  builder: (context, state) {
+                    if (state is FriendLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is FriendRequestLoaded) {
+                      return _friendRequestList(state.requests, cubit);
+                    } else if (state is FriendError) {
+                      return Center(
+                          child: Text(state.message,
+                              style: const TextStyle(color: Colors.white)));
+                    }
+                    return const Center(
+                        child: Text('No Requests',
+                            style: TextStyle(color: Colors.white)));
+                  },
+                ),
+
+                // Recommendations
+                BlocBuilder<FriendCubit, FriendState>(
+                  builder: (context, state) {
+                    if (state is FriendLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is RecommendationLoaded) {
+                      return _friendList(state.recommendations, cubit,
+                          isRecommendation: true);
+                    } else if (state is FriendError) {
+                      return Center(
+                          child: Text(state.message,
+                              style: const TextStyle(color: Colors.white)));
+                    }
+                    return const Center(
+                        child: Text('No Recommendations',
+                            style: TextStyle(color: Colors.white)));
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, List<Friend> friends) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 8),
-          Stack(
-            //mainAxisAlignment: MainAxisAlignment.start,
-            alignment: Alignment.center,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  icon:
-                      const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const HomeScreen()),
-                    );
-                  },
+  Widget _friendList(List<Friend> friends, FriendCubit cubit,
+      {bool isRecommendation = false}) {
+    if (friends.isEmpty) {
+      return const Center(
+          child: Text('No friends',
+              style: TextStyle(color: Colors.white, fontSize: 16)));
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.all(12),
+      itemCount: friends.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final friend = friends[index];
+        return ListTile(
+          leading: CircleAvatar(
+            radius: 28,
+            backgroundColor: const Color(0xff2a2a2a),
+            backgroundImage: friend.profileImage != null
+                ? AssetImage(friend.profileImage!) as ImageProvider
+                : null,
+            child: friend.profileImage == null
+                ? Text(friend.name[0].toUpperCase(),
+                    style: const TextStyle(color: Colors.white))
+                : null,
+          ),
+          title: Text(friend.name,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w600)),
+          subtitle: Text(
+              friend.isActive
+                  ? 'Online'
+                  : 'Last seen: ${_formatLastSeen(friend.lastSeen)}',
+              style: TextStyle(
+                  color: friend.isActive ? Colors.green : Colors.grey)),
+          trailing: isRecommendation
+              ? IconButton(
+                  icon: const Icon(Icons.person_add, color: Colors.orange),
+                  onPressed: () => cubit.addFriend(friend),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => cubit.removeFriend(friend.id),
                 ),
-              ),
-              const SizedBox(width: 4),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Your Friends',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    '11 / 20 Friends',
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(
-            width: 40,
-          ),
-          const SizedBox(height: 18),
+        );
+      },
+    );
+  }
 
-          // Search field
-          TextField(
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: 'Add a new Friend',
-              hintStyle: const TextStyle(color: Colors.white54),
-              prefixIcon: const Icon(Icons.search, color: Colors.white54),
-              filled: true,
-              fillColor: const Color(0xff252425),
-              contentPadding: const EdgeInsets.symmetric(vertical: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-            ),
+  Widget _friendRequestList(List<FriendRequest> requests, FriendCubit cubit) {
+    if (requests.isEmpty) {
+      return const Center(
+          child: Text('No requests',
+              style: TextStyle(color: Colors.white, fontSize: 16)));
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.all(12),
+      itemCount: requests.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final req = requests[index];
+        return ListTile(
+          leading: CircleAvatar(
+            radius: 28,
+            backgroundColor: const Color(0xff2a2a2a),
+            backgroundImage: req.profileImage != null
+                ? AssetImage(req.profileImage!) as ImageProvider
+                : null,
+            child: req.profileImage == null
+                ? Text(req.name[0].toUpperCase(),
+                    style: const TextStyle(color: Colors.white))
+                : null,
           ),
-          const SizedBox(height: 18),
-
-          // Social row
-          const Text('Find Friend from other App',
-              style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600)),
-          const SizedBox(height: 18),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          title: Text(req.name,
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w600)),
+          subtitle: const Text('Sent you a friend request',
+              style: TextStyle(color: Colors.grey, fontSize: 13)),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              _socialItem(
-                  imageUrl: "assets/images/mess_icon.jpg", label: 'Messenger'),
-              _socialItem(
-                  imageUrl: "assets/images/zalo_icon.jpg", label: 'Zalo'),
-              _socialItem(
-                  imageUrl: "assets/images/ig_icon.jpg", label: 'Instagram'),
-              _socialItem(
-                  imageUrl: "assets/images/defaultUser.png", label: 'Others'),
+              IconButton(
+                  icon: const Icon(Icons.check, color: Colors.green),
+                  onPressed: () => cubit.acceptFriendRequest(req.id)),
+              IconButton(
+                  icon: const Icon(Icons.close, color: Colors.red),
+                  onPressed: () => cubit.rejectFriendRequest(req.id)),
             ],
           ),
-
-          const SizedBox(height: 22),
-          const Text('Your Friends',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-
-          ListView.separated(
-            itemCount: friends.length,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            separatorBuilder: (context, index) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              final friend = friends[index];
-              return Row(
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.orange, width: 3),
-                    ),
-                    child: CircleAvatar(
-                      radius: 24,
-                      backgroundColor: const Color(0xff2a2a2a),
-                      backgroundImage: friend.profileImage != null
-                          ? AssetImage(friend.profileImage!) as ImageProvider
-                          : null,
-                      child: friend.profileImage == null
-                          ? Text(
-                              friend.name.isNotEmpty
-                                  ? friend.name[0].toUpperCase()
-                                  : '?',
-                              style: const TextStyle(color: Colors.white))
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(friend.name,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 4),
-                        Text(
-                          friend.isActive
-                              ? 'Online'
-                              : 'Actived ${_formatLastSeen(friend.lastSeen)}',
-                          style: TextStyle(
-                              color:
-                                  friend.isActive ? Colors.green : Colors.grey,
-                              fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.close, color: Colors.white),
-                  )
-                ],
-              );
-            },
-          ),
-
-          const SizedBox(height: 8),
-          Center(
-            child: TextButton(
-              onPressed: () {},
-              child: const Text('See more ▾',
-                  style: TextStyle(color: Colors.white70)),
-            ),
-          ),
-
-          const SizedBox(height: 18),
-          const Text('Recommendation',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold)),
-          const SizedBox(height: 40),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -241,9 +267,7 @@ class FriendsView extends StatelessWidget {
         Container(
           width: 50,
           height: 50,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-          ),
+          decoration: const BoxDecoration(shape: BoxShape.circle),
           child: ClipOval(
             child: Image.asset(
               imageUrl,
@@ -251,29 +275,18 @@ class FriendsView extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(
-          height: 9,
-        ),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
-        ),
+        const SizedBox(height: 9),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 14)),
       ],
     );
   }
 
   String _formatLastSeen(DateTime lastSeen) {
     final now = DateTime.now();
-    final difference = now.difference(lastSeen);
-
-    if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return '${lastSeen.day}/${lastSeen.month}/${lastSeen.year}';
-    }
+    final diff = now.difference(lastSeen);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${lastSeen.day}/${lastSeen.month}/${lastSeen.year}';
   }
 }
