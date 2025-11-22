@@ -100,22 +100,6 @@ class SettingsScreen extends StatelessWidget {
                   // --- Added About Section ---
                   _buildSectionHeader('About'),
                   _SettingsListItem(
-                    icon: Icons.music_video_outlined, // Placeholder for TikTok
-                    title: 'TikTok',
-                    onTap: () {/* TODO */},
-                  ),
-                  _SettingsListItem(
-                    icon:
-                        Icons.camera_alt_outlined, // Placeholder for Instagram
-                    title: 'Instagram',
-                    onTap: () {/* TODO */},
-                  ),
-                  _SettingsListItem(
-                    icon: Icons.public_outlined, // Placeholder for X
-                    title: 'X (Twitter)',
-                    onTap: () {/* TODO */},
-                  ),
-                  _SettingsListItem(
                     icon: Icons.share_outlined,
                     title: 'Share My Locket',
                     onTap: () {/* TODO */},
@@ -125,15 +109,10 @@ class SettingsScreen extends StatelessWidget {
                   // --- Added Danger Zone Section ---
                   _buildSectionHeader('Danger Zone'),
                   _SettingsListItem(
-                    icon: Icons.delete_outline,
-                    title: 'Delete account',
-                    onTap: () {/* TODO */},
-                    iconColor: Colors.red, // Use custom color
-                    titleColor: Colors.red, // Use custom color
-                  ),
-                  _SettingsListItem(
                     icon: Icons.logout_outlined,
                     title: 'Sign out',
+                    iconColor: Colors.red,
+                    titleColor: Colors.red,
                     onTap: () {
                       showLogoutDialog(context);
                     },
