@@ -25,6 +25,8 @@ class PhotoError extends PhotoState {
   PhotoError(this.errorMessage);
   @override
   List<Object> get props => [errorMessage];
+
+  String get message => errorMessage;
 }
 
 //Read

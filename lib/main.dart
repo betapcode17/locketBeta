@@ -52,6 +52,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Locket Beta',
+        // home: LandingUI(),
         home: LandingUI(),
       ),
     );
