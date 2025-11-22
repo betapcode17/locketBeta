@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locket_beta/camera/cubit/camera_state.dart';
 import 'package:locket_beta/friends/view/friends_screen.dart';
+import 'package:locket_beta/friends/cubit/friend_cubit.dart';
 import 'package:locket_beta/messenger/chat/chat.dart';
 import 'package:locket_beta/profile/profile.dart';
 import 'package:locket_beta/photo/cubit/photo_cubit.dart';
@@ -29,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late final CameraCubit _cameraCubit;
   late final PhotoCubit _photoCubit;
-  
+
   @override
   void initState() {
     super.initState();
@@ -115,9 +116,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(
+                      //       builder: (_) => const FriendsScreen()),
+                      // );
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(
+                      //     builder: (_) => BlocProvider.value(
+                      //       value: context.read<FriendCubit>(),
+                      //       child: FriendsScreen(),
+                      //     ),
+                      //   ),
+                      // );
+
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                            builder: (_) => const FriendsScreen()),
+                          builder: (_) => BlocProvider(
+                            create: (_) => FriendCubit(),
+                            child: FriendsScreen(),
+                          ),
+                        ),
                       );
                     },
                     child: Container(
@@ -146,8 +164,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: IconButton(
                       onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => ChatPage(currentUserId: "690effbcb90f29f230c54995",)));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChatPage(
+                                      currentUserId: "690effbcb90f29f230c54995",
+                                    )));
                       },
                       icon: Icon(
                         Icons.chat_bubble_outline,

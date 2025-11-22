@@ -15,7 +15,7 @@ class PhotoModel {
 
   factory PhotoModel.fromJson(Map<String, dynamic> json) {
     return PhotoModel(
-      id: json['id'] ?? '',
+      id: json['_id'] ?? '',
       userId: json['userId'] ?? '',
       imageUrl: json['imageUrl'] ?? '',
       timestamp:
@@ -26,7 +26,7 @@ class PhotoModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      '_id': id,
       'userId': userId,
       'imageUrl': imageUrl,
       'timestamp': timestamp.toIso8601String(),

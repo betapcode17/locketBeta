@@ -3,7 +3,7 @@ class UserProfileModel {
   final String username; // e.g., "Hậu Ngọc"
   final String handle; // e.g., "dodoododo"
   final String profileImageUrl;
-  final int locketCount;
+  int locketCount;
   final int streak;
 
   UserProfileModel({

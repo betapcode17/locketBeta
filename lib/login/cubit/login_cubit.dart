@@ -22,14 +22,14 @@ class LoginCubit extends Cubit<LoginState> {
       if (response.statusCode == 200) {
         final data = response.data;
 
-        final userId = data["user"]["_id"];
+        final userId = data["user"]["id"];
 
         final user = LoginModel(
           email: data["user"]["email"],
           password: password,
           token: data["accessToken"],
           showPassword: false,
-          // userId: userId,
+          userId: userId,
         );
 
         final prefs = await SharedPreferences.getInstance();
@@ -49,20 +49,3 @@ class LoginCubit extends Cubit<LoginState> {
     }
   }
 }
-  // Future<void> login(String email, String password) async {
-  //   emit(LoginLoading());
-
-  //   await Future.delayed(const Duration(seconds: 2));
-
-  //   if (email == 'locket@gmail.com' && password == 'Password123') {
-  //     final user = LoginModel(
-  //         //token: 'fake_token_123',
-  //         email: "locket@gmail.com",
-  //         password: "Password123",
-  //         showPassword: false);
-  //     emit(LoginSuccess(user));
-  //   } else {
-  //     emit(const LoginFailure('Incorrect Email or Password'));
-  //   }
-  // }
-

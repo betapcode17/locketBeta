@@ -52,8 +52,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Locket Beta',
-        // home: LandingUI(),
-        home: ChatPage(currentUserId: "690effbcb90f29f230c54995")
+        home: LandingUI(),
       ),
     );
   }
