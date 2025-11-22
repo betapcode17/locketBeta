@@ -1,12 +1,7 @@
-import 'package:equatable/equatable.dart';
 import 'package:locket_beta/model/friend_model.dart';
+import 'package:locket_beta/model/friend_request_model.dart';
 
-abstract class FriendState extends Equatable {
-  const FriendState();
-
-  @override
-  List<Object> get props => [];
-}
+abstract class FriendState {}
 
 class FriendInitial extends FriendState {}
 
@@ -14,18 +9,20 @@ class FriendLoading extends FriendState {}
 
 class FriendLoaded extends FriendState {
   final List<Friend> friends;
+  FriendLoaded(this.friends);
+}
 
-  const FriendLoaded(this.friends);
+class FriendRequestLoaded extends FriendState {
+  final List<FriendRequest> requests;
+  FriendRequestLoaded(this.requests);
+}
 
-  @override
-  List<Object> get props => [friends];
+class RecommendationLoaded extends FriendState {
+  final List<Friend> recommendations;
+  RecommendationLoaded(this.recommendations);
 }
 
 class FriendError extends FriendState {
   final String message;
-
-  const FriendError(this.message);
-
-  @override
-  List<Object> get props => [message];
+  FriendError(this.message);
 }

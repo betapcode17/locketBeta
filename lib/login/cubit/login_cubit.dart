@@ -49,20 +49,3 @@ class LoginCubit extends Cubit<LoginState> {
     }
   }
 }
-  // Future<void> login(String email, String password) async {
-  //   emit(LoginLoading());
-
-  //   await Future.delayed(const Duration(seconds: 2));
-
-  //   if (email == 'locket@gmail.com' && password == 'Password123') {
-  //     final user = LoginModel(
-  //         //token: 'fake_token_123',
-  //         email: "locket@gmail.com",
-  //         password: "Password123",
-  //         showPassword: false);
-  //     emit(LoginSuccess(user));
-  //   } else {
-  //     emit(const LoginFailure('Incorrect Email or Password'));
-  //   }
-  // }
-
