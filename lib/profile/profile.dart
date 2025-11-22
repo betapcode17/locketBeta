@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:locket_beta/profile/cubit/profile_cubit.dart';
 import 'package:locket_beta/profile/user_settings/user_settings.dart'; 
-
-
-
+import 'package:locket_beta/utils/local_storage.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -122,7 +120,7 @@ class ProfileScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               _buildStatColumn('Lockets', user.locketCount.toString()),
-                              _buildStatColumn('Streak', '${user.streak.toString()}d'),
+                              // _buildStatColumn('Streak', '${user.streak.toString()}d'),
                               _buildStatColumn('Friends', '10'), 
                             ],
                           ),
