@@ -67,4 +67,6 @@ class HistoryCubit extends Cubit<HistoryState> {
       emit(HistoryError("Không thể lấy ảnh: $e"));
     }
   }
+
+  void deletePhoto(String id) {}
 }

@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:locket_beta/history/cubit/history_state.dart';
+import 'package:locket_beta/friends/view/friends_screen.dart';
+import 'package:locket_beta/messenger/chat/chat.dart';
+import 'package:locket_beta/photo/cubit/photo_cubit.dart';
+import 'package:locket_beta/photo/cubit/photo_state.dart';
 import 'package:locket_beta/profile/profile.dart';
 import 'package:locket_beta/model/photo_model.dart';
 import 'history_grid.dart';
-import "package:locket_beta/history/cubit/history_cubit.dart";
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -18,6 +20,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   bool clicked = false;
   bool showGrid = false;
   late final PageController _pageController;
+  // ignore: unused_field
   int _currentIndex = 0;
 
   @override
@@ -36,45 +39,127 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final cubit = HistoryCubit();
+        final cubit = PhotoCubit();
         cubit.fetchPhotos(); // Trigger fetch all photos on init
         return cubit;
       },
       child: Scaffold(
         backgroundColor: showGrid ? Colors.black : const Color(0xff1d1b20),
-        body: BlocBuilder<HistoryCubit, HistoryState>(
-          builder: (context, state) {
-            if (state is HistoryLoading) {
-              return const Center(
-                  child: CircularProgressIndicator(color: Colors.white));
-            }
-            if (state is HistoryError) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error, color: Colors.white54, size: 64),
-                    const SizedBox(height: 16),
-                    Text(state.errorMessage,
-                        style: const TextStyle(color: Colors.white54)),
-                  ],
-                ),
-              );
-            }
-            return AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: showGrid
-                  ? _buildGridView(context, state)
-                  : _buildMainView(state),
-            );
-          },
+        body: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              height: 70,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: const Color(0xff47444c),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const ProfileScreen()),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.person,
+                        color: Colors.white.withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const FriendsScreen()),
+                      );
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: 150,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: const Color(0xff47444c),
+                      ),
+                      child: const Text(
+                        "Add Friend",
+                        style: TextStyle(
+                          color: Color(0xffffffff),
+                          fontSize: 17,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: const Color(0xff47444c),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChatPage(
+                                      currentUserId: "690effbcb90f29f230c54995",
+                                    )));
+                      },
+                      icon: Icon(
+                        Icons.chat_bubble_outline,
+                        color: Colors.white.withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: BlocBuilder<PhotoCubit, PhotoState>(
+                builder: (context, state) {
+                  if (state is PhotoLoading || state is PhotoDeleting) {
+                    return const Center(
+                        child: CircularProgressIndicator(color: Colors.white));
+                  }
+                  if (state is PhotoError) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error,
+                              color: Colors.white54, size: 64),
+                          const SizedBox(height: 16),
+                          Text(state.errorMessage,
+                              style: const TextStyle(color: Colors.white54)),
+                        ],
+                      ),
+                    );
+                  }
+                  return AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: showGrid
+                        ? _buildGridView(context, state)
+                        : _buildMainView(state),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildMainView(HistoryState state) {
-    if (state is! HistoryLoaded || state.photos.isEmpty) {
+  Widget _buildMainView(PhotoState state) {
+    if (state is! PhotoLoaded || state.photos.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -100,7 +185,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 5),
           child: Column(
             children: [
-              SizedBox(height: MediaQuery.of(context).padding.top + 50),
+              const SizedBox(height: 20), // Adjusted padding after top bar
               Expanded(
                 child: _buildHeader(photo),
               ),
@@ -112,7 +197,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   children: [
                     _buildSenderInfo(photo),
                     const SizedBox(height: 40),
-                    _buildBottomButtons(),
+                    _buildBottomButtons(photo),
                   ],
                 ),
               ),
@@ -123,8 +208,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildGridView(BuildContext context, HistoryState state) {
-    if (state is! HistoryLoaded) {
+  Widget _buildGridView(BuildContext context, PhotoState state) {
+    if (state is! PhotoLoaded) {
       return const Center(
           child: CircularProgressIndicator(color: Colors.white));
     }
@@ -268,7 +353,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildBottomButtons() {
+  Widget _buildBottomButtons(PhotoModel photo) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -300,10 +385,79 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ),
         ),
-        IconButton(
-          onPressed: () => _pageController.jumpToPage(0),
+        PopupMenuButton<String>(
           icon: const Icon(Icons.keyboard_arrow_up,
               color: Colors.white, size: 28),
+          onSelected: (String value) {
+            final cubit = context.read<PhotoCubit>();
+            switch (value) {
+              case 'delete':
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Xác nhận xóa'),
+                    content: const Text('Bạn có chắc muốn xóa ảnh này?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Hủy'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          cubit.deletePhoto(photo.id);
+                        },
+                        child: const Text('Xóa'),
+                      ),
+                    ],
+                  ),
+                );
+                break;
+              case 'report':
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Tính năng báo cáo đang được phát triển')),
+                );
+                break;
+              case 'share':
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Chia sẻ ảnh')),
+                );
+                break;
+            }
+          },
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+            const PopupMenuItem<String>(
+              value: 'delete',
+              child: Row(
+                children: [
+                  Icon(Icons.delete, color: Colors.red),
+                  SizedBox(width: 8),
+                  Text('Xóa ảnh'),
+                ],
+              ),
+            ),
+            const PopupMenuItem<String>(
+              value: 'report',
+              child: Row(
+                children: [
+                  Icon(Icons.flag, color: Colors.orange),
+                  SizedBox(width: 8),
+                  Text('Báo cáo'),
+                ],
+              ),
+            ),
+            const PopupMenuItem<String>(
+              value: 'share',
+              child: Row(
+                children: [
+                  Icon(Icons.share),
+                  SizedBox(width: 8),
+                  Text('Chia sẻ'),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
     );

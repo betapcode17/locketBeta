@@ -100,6 +100,7 @@ class PhotoCubit extends Cubit<PhotoState> {
 
       if (response.statusCode == 200) {
         final data = response.data;
+        print(data);
         final List<dynamic> photosJson = data['photos'] ?? [];
         final photos =
             photosJson.map((json) => PhotoModel.fromJson(json)).toList();
@@ -188,6 +189,7 @@ class PhotoCubit extends Cubit<PhotoState> {
 
       if (response.statusCode == 200) {
         emit(PhotoDeleted(photoId));
+        await fetchPhotos(); // Refetch to update the list
       } else if (response.statusCode == 404) {
         final errorMsg = response.data['message'] ?? "Không thể xóa ảnh";
         emit(PhotoError(errorMsg));

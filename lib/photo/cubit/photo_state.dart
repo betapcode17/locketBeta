@@ -4,6 +4,8 @@ import 'package:locket_beta/model/photo_model.dart';
 abstract class PhotoState extends Equatable {
   @override
   List<Object> get props => [];
+
+  String? get errorMessage => null;
 }
 
 class PhotoInitial extends PhotoState {}
