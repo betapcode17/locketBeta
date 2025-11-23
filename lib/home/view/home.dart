@@ -14,6 +14,7 @@ import 'package:locket_beta/settings/sizes.dart';
 import 'package:locket_beta/home/view/preview.dart';
 import 'package:locket_beta/history/view/history.dart';
 import 'package:locket_beta/camera/cubit/camera_cubit.dart';
+import 'package:locket_beta/utils/local_storage.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -163,13 +164,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: const Color(0xff47444c),
                     ),
                     child: IconButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        final uid = await LocalStorage.getUserId();
+                        final userId = uid ?? "690effbcb90f29f230c54995"; // fallback
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ChatPage(
-                                      currentUserId: "690effbcb90f29f230c54995",
-                                    )));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatPage(currentUserId: userId),
+                          ),
+                        );
                       },
                       icon: Icon(
                         Icons.chat_bubble_outline,
