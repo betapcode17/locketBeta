@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import "package:locket_beta/logout/views/logout_ui.dart";
+import 'package:locket_beta/profile/user_settings/edit_avatar_screen.dart';
+import 'package:locket_beta/profile/user_settings/edit_email_screen.dart';
+import 'package:locket_beta/profile/user_settings/edit_name_screen.dart';
 
 // Assuming SettingsCubit and states are defined elsewhere
 // import 'package:locket_beta/profile/user_settings/cubit/user_settings_cubit.dart';
@@ -71,24 +74,24 @@ class SettingsScreen extends StatelessWidget {
                   // --- Existing General Section ---
                   _buildSectionHeader('General'),
                   _SettingsListItem(
-                    icon: Icons.cake_outlined,
-                    title: 'Edit birthday',
-                    onTap: () {/* TODO */},
-                  ),
-                  _SettingsListItem(
                     icon: Icons.text_fields,
                     title: 'Edit name',
-                    onTap: () {/* TODO */},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const EditNameScreen()),
+                      );
+                    },
                   ),
                   _SettingsListItem(
                     icon: Icons.portrait_outlined,
                     title: 'Edit profile photo',
-                    onTap: () {/* TODO */},
-                  ),
-                  _SettingsListItem(
-                    icon: Icons.phone_outlined,
-                    title: 'Phone number',
-                    onTap: () {/* TODO */},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const EditAvatarScreen()),
+                      );
+                    },
                   ),
                   _SettingsListItem(
                     icon: Icons.mail_outline,
