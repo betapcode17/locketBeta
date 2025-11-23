@@ -45,14 +45,13 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       IconButton(
                         icon: const Icon(Icons.settings, color: Colors.white),
-                        onPressed: () {
-                          
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              
-                              builder: (_) => const SettingsScreen(),
-                            ),
+                        onPressed: () async {
+                          final updated = await Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const SettingsScreen()),
                           );
+                          if (updated == true) {
+                            context.read<ProfileCubit>().fetchProfile();   // ⬅ refresh profile
+                          }
                         },
                       ),
                       const SizedBox(width: 10),
@@ -121,7 +120,7 @@ class ProfileScreen extends StatelessWidget {
                             children: [
                               _buildStatColumn('Lockets', user.locketCount.toString()),
                               // _buildStatColumn('Streak', '${user.streak.toString()}d'),
-                              _buildStatColumn('Friends', '10'), 
+                              _buildStatColumn('Friends', '0'), 
                             ],
                           ),
                           const SizedBox(height: 24),
