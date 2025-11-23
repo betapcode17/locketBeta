@@ -70,7 +70,7 @@ class FriendApi {
   // Friend Requests
   Future<List<FriendRequest>> getFriendRequests(String userId) async {
     try {
-      final response = await _dio.get('/api/friend-requests/$userId');
+      final response = await _dio.get('/api/friends/requests/$userId');
       return (response.data as List)
           .map((e) => FriendRequest.fromJson(e))
           .toList();
@@ -81,7 +81,7 @@ class FriendApi {
 
   Future<void> acceptFriendRequest(String requestId) async {
     try {
-      await _dio.patch('/api/friend-requests/accept/$requestId');
+      await _dio.patch('/api/friends/requests/accept/$requestId');
     } catch (e) {
       throw Exception('Failed to accept friend request: $e');
     }
@@ -89,7 +89,7 @@ class FriendApi {
 
   Future<void> rejectFriendRequest(String requestId) async {
     try {
-      await _dio.patch('/api/friend-requests/reject/$requestId');
+      await _dio.patch('/api/friends/requests/reject/$requestId');
     } catch (e) {
       throw Exception('Failed to reject friend request: $e');
     }
@@ -98,7 +98,8 @@ class FriendApi {
   // Recommendations
   Future<List<Friend>> getRecommendations(String userId) async {
     try {
-      final response = await _dio.get('/api/users/recommendation/$userId');
+      final response =
+          await _dio.get('/api/friends/users/recommendation/$userId');
       return (response.data as List).map((e) => Friend.fromJson(e)).toList();
     } catch (e) {
       throw Exception('Failed to load recommendations: $e');

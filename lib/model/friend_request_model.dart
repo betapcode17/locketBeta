@@ -13,10 +13,10 @@ class FriendRequest {
 
   factory FriendRequest.fromJson(Map<String, dynamic> json) {
     return FriendRequest(
-      id: json['id'] as String,
-      senderId: json['senderId'] as String,
-      name: json['name'] as String? ?? 'Unknown',
-      profileImage: json['profileImage'] as String?,
+      id: json['id']?.toString() ?? '',
+      senderId: json['senderId']?.toString() ?? '',
+      name: json['name']?.toString() ?? 'Unknown',
+      profileImage: json['profileImage']?.toString(),
     );
   }
 
