@@ -95,7 +95,8 @@ class _ChatPage extends State<ChatPage> {
                               
                               // Lấy tin nhắn cuối cùng
                               final lastMessage = chat.lastMessage;
-                              final lastMessageText = lastMessage?.content ?? 'Chưa có tin nhắn';
+                              final type = lastMessage?.type;
+                              final lastMessageText = type == 'image' ? 'Hình ảnh' : (lastMessage?.content ?? 'Chưa có tin nhắn');
                               
                               return ListTile(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),

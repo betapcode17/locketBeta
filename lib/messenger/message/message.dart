@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:locket_beta/messenger/imagPicker/imagePicker.dart';
 import 'package:locket_beta/messenger/message/cubit/message_cubit.dart';
 import 'package:locket_beta/messenger/message/cubit/message_state.dart';
 import 'package:locket_beta/model/chat_model.dart';
@@ -26,6 +27,13 @@ class _MessagePageState extends State<MessagePage> {
   void initState() {
     super.initState();
     currentFriend = widget.currentFriend;
+
+  }
+
+  @override
+  void dispose() {
+    try { context.read<MessageCubit>().disconnect(); } catch (_) {}
+    super.dispose();
   }
 
   void _send(BuildContext context) {
@@ -78,7 +86,54 @@ class _MessagePageState extends State<MessagePage> {
                       borderRadius: borderRadius,
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Text(m.content, style: TextStyle(color: textColor)),
+                    // child: Text(m.content, style: TextStyle(color: textColor)),
+                    child: m.type == 'image' && (m.content?.isNotEmpty ?? false)
+                        ? GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => GestureDetector(
+                                  onTap: () => Navigator.of(context).pop(),
+                                  child: Center(
+                                    child: InteractiveViewer(
+                                      child: Image.network(
+                                        m.content,
+                                        fit: BoxFit.contain,
+                                        loadingBuilder: (ctx, child, progress) {
+                                          if (progress == null) return child;
+                                          return const SizedBox(
+                                            height: 120,
+                                            child: Center(child: CircularProgressIndicator()),
+                                          );
+                                        },
+                                        errorBuilder: (ctx, err, st) => const SizedBox(
+                                          height: 120,
+                                          child: Center(child: Icon(Icons.broken_image, color: Colors.white70)),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: MediaQuery.of(context).size.width * 0.65,
+                                  maxHeight: 300,
+                                ),
+                                child: Image.network(
+                                  m.content,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (ctx, child, progress) =>
+                                      progress == null ? child : const SizedBox(height: 120, child: Center(child: CircularProgressIndicator())),
+                                  errorBuilder: (ctx, err, st) => const SizedBox(height: 120, child: Center(child: Icon(Icons.broken_image, color: Colors.white70))),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Text(m.content ?? '', style: TextStyle(color: textColor)),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -164,6 +219,36 @@ class _MessagePageState extends State<MessagePage> {
     );
   }
 
+  //hàm gọi cho ImagePicker
+  void _openImagePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (c) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.25,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (_, controller) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFF121212),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+              ),
+              padding: const EdgeInsets.all(12),
+              child: ImagePickerWidget(
+                chatId: widget.chatId,
+                senderId: widget.currentUserId,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   static String _formatTime(DateTime t) {
     final h = t.hour.toString().padLeft(2, '0');
     final m = t.minute.toString().padLeft(2, '0');
@@ -220,6 +305,7 @@ class _MessagePageState extends State<MessagePage> {
                   children: [
                     Expanded(
                       child: ListView.builder(
+                        reverse: true,
                         controller: _scrollController,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         itemCount: messages.length,
@@ -235,7 +321,9 @@ class _MessagePageState extends State<MessagePage> {
                       child: Row(
                         children: [
                           IconButton(icon: const Icon(Icons.emoji_emotions_outlined, color: Colors.white70), onPressed: () {}),
-                          IconButton(icon: const Icon(Icons.attach_file, color: Colors.white70), onPressed: () {}),
+                          IconButton(icon: const Icon(Icons.attach_file, color: Colors.white70), onPressed: () {
+                            _openImagePicker(context);
+                          }),
                           Expanded(
                             child: TextField(
                               controller: _controller,
