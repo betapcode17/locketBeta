@@ -14,14 +14,20 @@ class EditAvatarScreen extends StatefulWidget {
 
 class _EditAvatarScreenState extends State<EditAvatarScreen> {
   File? imageFile;
+  XFile? pickedFile; 
 
   Future pickImage() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? picked = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
 
     if (picked != null) {
+      pickedFile = picked; 
       setState(() => imageFile = File(picked.path));
     }
+    print("PICKED IMAGE: $picked.path");
   }
 
   @override
@@ -63,12 +69,9 @@ class _EditAvatarScreenState extends State<EditAvatarScreen> {
                         ? null
                         : () async {
                             final formData = FormData.fromMap({
-                              "avatar": await MultipartFile.fromFile(
-                                imageFile!.path,
-                                filename: "avatar.jpg",
-                              )
+                              "avatarUrl": pickedFile!.path,
                             });
-
+                            print("FORM DATA: " + formData.fields.toString());
                             context
                                 .read<EditFieldCubit>()
                                 .updateAvatar(formData);

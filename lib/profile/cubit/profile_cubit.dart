@@ -30,10 +30,10 @@ class ProfileCubit extends Cubit<ProfileState> {
       print("PROFILE RESPONSE: " + profileData.toString());
       final userProfile = UserProfileModel(
         id: profileData["_id"],
-        username: profileData["username"] ?? "https://www.tech101.in/wp-content/uploads/2018/07/blank-profile-picture.png",
+        username: profileData["username"] ?? "N/A",
         handle: profileData["username"] ?? "",
-        profileImageUrl: profileData["avatarUrl"] ?? "",
-        locketCount: 0, // Will update after fetching photos
+        profileImageUrl: profileData["avatarUrl"] ?? "https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png",
+        locketCount: 0, // Will update after fetching photosR
         streak: 0, // You can compute streak if needed
       );
 

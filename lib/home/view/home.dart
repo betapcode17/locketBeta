@@ -35,14 +35,18 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
     _cameraCubit = context.read<CameraCubit>();
     _photoCubit = PhotoCubit();
-    _cameraCubit.initializeCamera();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _cameraCubit.initializeCamera();
+    });
   }
 
   @override
   void dispose() {
-    _cameraCubit.close();
+    // KHÔNG close cameraCubit
     _photoCubit.close();
     super.dispose();
   }
