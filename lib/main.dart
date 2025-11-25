@@ -53,6 +53,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Locket Beta',
         home: LandingUI(),
+        // home: ChatPage(currentUserId: "690effbcb90f29f230c54995",),
       ),
     );
   }

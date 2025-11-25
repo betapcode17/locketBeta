@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -12,6 +13,8 @@ class MessageCubit extends Cubit<MessageState> {
   String chatId;
   String currentUserId;
   WebSocketChannel? _channel;
+  StreamSubscription? _wsSub;
+  Timer? _hbTimer;
   MessageCubit({
     required this.currentFriend,
     required this.chatId,
@@ -20,12 +23,27 @@ class MessageCubit extends Cubit<MessageState> {
     _connectWebSocket();
   }
 
-    void _connectWebSocket() {
+  @override
+  Future<void> close() {
+    // đảm bảo đóng WS khi cubit bị đóng (BlocProvider sẽ gọi close())
+    _cleanupSocket();
+    return super.close();
+  }
+
+  void _connectWebSocket() {
+    if(_channel != null) return;
+
     _channel = WebSocketChannel.connect(
       Uri.parse('ws://10.0.2.2:8000?userId=$currentUserId'),
     );
+
+    _sendPresence('online');
+    _startHeartbeat();
+
     // Lắng nghe messages từ server
-    _channel!.stream.listen((message) {
+    // Lắng nghe messages từ server — lưu subscription để cancel sau này
+    _wsSub = _channel!.stream.listen((message) {
+      
       print("Da stream voi server message");
       // Parse message từ JSON
       final data = jsonDecode(message);
@@ -37,13 +55,53 @@ class MessageCubit extends Cubit<MessageState> {
         // Emit state mới (thêm message vào list hiện tại)
         if (state is MessageLoadedState) {
           final current = (state as MessageLoadedState).messengers;
-          emit(MessageLoadedState(messengers: [...current, newMessage]));
+          current.insert(0, newMessage);
+          emit(MessageLoadedState(messengers: current));
         }
       }
-      
+      //Đóng kết nối an toàn = cancel subscription + channel.sink.close().
+    }, onDone: () {
+      _cleanupSocket();
     }, onError: (error) {
+      _cleanupSocket();
       emit(MessageErrorState());
     });
+  }
+
+  void _cleanupSocket() { 
+    try { _sendPresence('offline'); } catch (_) {}
+    _stopHeartbeat();
+    try { _wsSub?.cancel(); } catch (_) {}
+    try { _channel?.sink.close(); } catch (_) {}
+    _wsSub = null;
+    _channel = null;
+  }
+
+  void disconnect() => _cleanupSocket();
+
+  void _sendPresence(String status) {
+    if (_channel == null) return;
+    final payload = jsonEncode({
+      'event': 'presence',
+      'userId': currentUserId,
+      'status': status, // 'online' | 'heartbeat' | 'away' | 'offline'
+      'ts': DateTime.now().toIso8601String(),
+    });
+    try {
+      _channel!.sink.add(payload);
+    } catch (_) {}
+  }
+
+  void _startHeartbeat() {
+    _hbTimer?.cancel();
+    _hbTimer = Timer.periodic(const Duration(seconds: 25), (_) {
+      _sendPresence('heartbeat');
+    });
+  }
+
+  void _stopHeartbeat() {
+    _hbTimer?.cancel();
+    _hbTimer = null;
   }
 
   void sendMessage(String content) {
